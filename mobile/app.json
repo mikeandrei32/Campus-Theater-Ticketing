@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "MSEUF Theater Pass",
+    "slug": "mseuf-theater",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "edu.ph.mseuf.theater"
+    }
+  }
+}
