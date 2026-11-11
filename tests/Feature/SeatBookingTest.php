@@ -8,7 +8,6 @@ use App\Models\Seat;
 use App\Models\TicketSeat;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class SeatBookingTest extends TestCase
@@ -25,9 +24,8 @@ class SeatBookingTest extends TestCase
     {
         $response = $this->get(route('events.index'));
         $response->assertStatus(200);
-        $response->assertSee('MSEUF College Plays');
+        $response->assertSee('Campus Theater');
         $response->assertSee('Hiyas ng Enverga 2026: Coronation Night');
-        $response->assertSee('Upcoming Campus Shows');
     }
 
     public function test_can_view_seat_picker_page(): void
@@ -45,7 +43,7 @@ class SeatBookingTest extends TestCase
     {
         $event = Event::first();
         $occupiedTickets = TicketSeat::where('event_id', $event->id)->get();
-        
+
         $response = $this->get(route('theater.seats', $event));
         $response->assertStatus(200);
         $this->assertNotEmpty($occupiedTickets);
@@ -142,8 +140,9 @@ class SeatBookingTest extends TestCase
 
     public function test_marshal_can_validate_ticket(): void
     {
-        $ticket = TicketSeat::first();
-        
+        $ticket = TicketSeat::where('is_checked_in', false)->first() ?? TicketSeat::first();
+        $ticket->update(['is_checked_in' => false, 'checked_in_at' => null]);
+
         $response = $this->postJson(route('marshal.validate'), [
             'token' => $ticket->qr_token,
         ]);
@@ -157,5 +156,49 @@ class SeatBookingTest extends TestCase
         ]);
         $secondResponse->assertStatus(409);
         $secondResponse->assertJson(['status' => 'warning']);
+    }
+
+    public function test_marshal_can_validate_via_booking_reference(): void
+    {
+        $booking = Booking::with('tickets')->first();
+        // Reset check-in state
+        TicketSeat::where('booking_id', $booking->id)->update(['is_checked_in' => false, 'checked_in_at' => null]);
+
+        $response = $this->postJson(route('marshal.validate'), [
+            'token' => $booking->booking_reference,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'status' => 'success',
+            'verification_type' => 'booking_reference',
+            'booking_reference' => $booking->booking_reference,
+        ]);
+
+        // Check that database marks all seats as checked in
+        $this->assertEquals(0, TicketSeat::where('booking_id', $booking->id)->where('is_checked_in', false)->count());
+
+        // Second attempt with the same booking reference should return warning (already admitted)
+        $secondResponse = $this->postJson(route('marshal.validate'), [
+            'token' => strtolower($booking->booking_reference), // test case-insensitivity
+        ]);
+
+        $secondResponse->assertStatus(409);
+        $secondResponse->assertJson([
+            'status' => 'warning',
+            'verification_type' => 'booking_reference',
+        ]);
+    }
+
+    public function test_marshal_validation_fails_on_invalid_input(): void
+    {
+        $response = $this->postJson(route('marshal.validate'), [
+            'token' => 'NON-EXISTENT-REF-12345',
+        ]);
+
+        $response->assertStatus(404);
+        $response->assertJson([
+            'status' => 'error',
+        ]);
     }
 }

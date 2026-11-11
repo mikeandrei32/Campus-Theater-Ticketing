@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Support\QrCode;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,8 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (!class_exists('QrCode')) {
-            class_alias(\App\Support\QrCode::class, 'QrCode');
+        if (! class_exists('QrCode')) {
+            class_alias(QrCode::class, 'QrCode');
         }
     }
 }

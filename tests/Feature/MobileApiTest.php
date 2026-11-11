@@ -52,7 +52,7 @@ class MobileApiTest extends TestCase
                 'success',
                 'event',
                 'seats_by_row' => [
-                    'A', 'B', 'C', 'D', 'E', 'F'
+                    'A', 'B', 'C', 'D', 'E', 'F',
                 ],
                 'occupied_seat_ids',
                 'total_seats',

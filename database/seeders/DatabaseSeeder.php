@@ -13,10 +13,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::firstOrCreate(
+        User::updateOrCreate(
+            ['email' => 'admin@mseuf.edu.ph'],
+            [
+                'name' => 'MSEUF Theater Admin',
+                'role' => 'admin',
+                'student_number' => 'ADMIN-001',
+                'password' => Hash::make('password'),
+            ]
+        );
+
+        User::updateOrCreate(
             ['email' => 'student@mseuf.edu.ph'],
             [
                 'name' => 'Mike Enverga',
+                'role' => 'student',
+                'student_number' => 'A23-00142',
                 'password' => Hash::make('password'),
             ]
         );

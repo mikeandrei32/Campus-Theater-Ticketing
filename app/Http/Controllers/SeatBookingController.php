@@ -77,10 +77,10 @@ class SeatBookingController extends Controller
 
             // Identify student user (auth user or default seeded student)
             $userId = auth()->id();
-            if (!$userId) {
+            if (! $userId) {
                 if ($request->filled('student_name')) {
                     $student = User::firstOrCreate(
-                        ['email' => Str::slug($request->student_name) . '@student.mseuf.edu.ph'],
+                        ['email' => Str::slug($request->student_name).'@student.mseuf.edu.ph'],
                         ['name' => $request->student_name, 'password' => bcrypt('student123')]
                     );
                     $userId = $student->id;
@@ -98,7 +98,7 @@ class SeatBookingController extends Controller
             $booking = Booking::create([
                 'user_id' => $userId,
                 'event_id' => $event->id,
-                'booking_reference' => 'MSEUF-' . strtoupper(Str::random(6)),
+                'booking_reference' => 'MSEUF-'.strtoupper(Str::random(6)),
                 'total_seats' => $selectedSeats->count(),
                 'total_amount' => $total,
                 'payment_status' => $event->pricing_type === 'free' ? 'free' : 'paid',

@@ -28,7 +28,7 @@ class EventSeeder extends Seeder
         $events = [
             [
                 'title' => 'Hiyas ng Enverga 2026: Coronation Night',
-                'venue' => 'MSEUF University Theater',
+                'venue' => 'Little Theater, AEC Building',
                 'show_date' => Carbon::now()->addDays(3)->setTime(18, 0),
                 'pricing_type' => 'paid',
                 'regular_price' => 150.00,
@@ -37,7 +37,7 @@ class EventSeeder extends Seeder
             ],
             [
                 'title' => 'Enverga University Cultural Night',
-                'venue' => 'MSEUF University Theater',
+                'venue' => 'Little Theater, AEC Building',
                 'show_date' => Carbon::now()->addDays(5)->setTime(19, 30),
                 'pricing_type' => 'free',
                 'regular_price' => 0.00,
@@ -46,7 +46,7 @@ class EventSeeder extends Seeder
             ],
             [
                 'title' => 'CCMS Drama Fest: The Digital Odyssey',
-                'venue' => 'MSEUF University Theater',
+                'venue' => 'Little Theater, AEC Building',
                 'show_date' => Carbon::now()->addDays(7)->setTime(17, 0),
                 'pricing_type' => 'free',
                 'regular_price' => 0.00,
@@ -55,7 +55,7 @@ class EventSeeder extends Seeder
             ],
             [
                 'title' => 'MSEUF Symphony & Theater Guild Showcase',
-                'venue' => 'MSEUF University Theater',
+                'venue' => 'Little Theater, AEC Building',
                 'show_date' => Carbon::now()->addDays(12)->setTime(20, 0),
                 'pricing_type' => 'paid',
                 'regular_price' => 180.00,

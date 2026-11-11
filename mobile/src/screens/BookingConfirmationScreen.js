@@ -8,6 +8,7 @@ import {
   Platform,
 } from 'react-native';
 import { COLORS } from '../constants/theme';
+import QRCodeView from '../components/QRCodeView';
 
 export default function BookingConfirmationScreen({ booking, onBackToShows }) {
   if (!booking) return null;
@@ -106,18 +107,17 @@ export default function BookingConfirmationScreen({ booking, onBackToShows }) {
             </View>
           </View>
 
-          {/* QR Code Pass Box */}
+          {/* Real Scannable QR Code Pass Box */}
           <View style={styles.qrContainer}>
-            <View style={styles.simulatedQrBox}>
-              {/* Decorative QR Pattern */}
-              <View style={styles.qrCornerTL} />
-              <View style={styles.qrCornerTR} />
-              <View style={styles.qrCornerBL} />
-              <View style={styles.qrCenterDot} />
-              <Text style={styles.qrStubText}>MSEUF DIGITAL QR</Text>
-            </View>
+            <QRCodeView
+              value={booking.booking_reference || booking.seats?.[0]?.qr_token || 'MSEUF-PASS'}
+              size={150}
+              color={COLORS.maroon}
+              backgroundColor="#FFFFFF"
+            />
+            <Text style={styles.qrStubText}>MSEUF DIGITAL PASS QR</Text>
             <Text style={styles.qrTokenText}>
-              Pass Token: {booking.seats?.[0]?.qr_token?.slice(0, 18) || 'MSEUF-TOKEN'}...
+              Scan at Gate • Ref: {booking.booking_reference}
             </Text>
             <Text style={styles.qrHint}>Present this digital pass at the auditorium usher gate.</Text>
           </View>
@@ -382,62 +382,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
-  simulatedQrBox: {
-    width: 120,
-    height: 120,
-    backgroundColor: COLORS.white,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: COLORS.maroon,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-    padding: 8,
-  },
-  qrCornerTL: {
-    position: 'absolute',
-    top: 6,
-    left: 6,
-    width: 22,
-    height: 22,
-    borderWidth: 4,
-    borderColor: COLORS.maroon,
-  },
-  qrCornerTR: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    width: 22,
-    height: 22,
-    borderWidth: 4,
-    borderColor: COLORS.maroon,
-  },
-  qrCornerBL: {
-    position: 'absolute',
-    bottom: 6,
-    left: 6,
-    width: 22,
-    height: 22,
-    borderWidth: 4,
-    borderColor: COLORS.maroon,
-  },
-  qrCenterDot: {
-    width: 14,
-    height: 14,
-    backgroundColor: COLORS.vipGold,
-    borderRadius: 3,
-  },
   qrStubText: {
-    fontSize: 8,
+    fontSize: 9,
     fontWeight: '900',
     color: COLORS.maroon,
-    marginTop: 8,
-    letterSpacing: 0.5,
+    marginTop: 10,
+    letterSpacing: 0.8,
   },
   qrTokenText: {
-    fontSize: 10,
-    color: COLORS.textSecondary,
-    marginTop: 8,
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    marginTop: 4,
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
   },
   qrHint: {

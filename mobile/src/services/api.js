@@ -1,11 +1,26 @@
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
-// By default:
-// - Android Emulator uses 10.0.2.2 to access host machine's localhost:8000
-// - Web and iOS Simulator use localhost:8000
-// - On a physical phone, replace with your PC's Wi-Fi IPv4 address (e.g. 192.168.1.XX:8000)
-const DEFAULT_HOST = Platform.OS === 'android' ? '10.0.2.2:8000' : 'localhost:8000';
+const expoHost = Constants.expoConfig?.hostUri?.split(':')[0];
+const DEFAULT_HOST =
+  Platform.OS === 'web'
+    ? 'localhost:8000'
+    : expoHost
+      ? `${expoHost}:8000`
+      : Platform.OS === 'android'
+        ? '10.0.2.2:8000'
+        : 'localhost:8000';
 let API_BASE_URL = `http://${DEFAULT_HOST}/api`;
+let AUTH_TOKEN = null;
+
+// Persist token on web if localStorage is available
+try {
+  if (Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
+    AUTH_TOKEN = window.localStorage.getItem('mseuf_auth_token') || null;
+  }
+} catch (e) {
+  // ignore storage errors
+}
 
 export const getApiBaseUrl = () => API_BASE_URL;
 
@@ -16,13 +31,149 @@ export const setApiBaseUrl = (url) => {
   }
 };
 
+export const getAuthToken = () => AUTH_TOKEN;
+
+export const setAuthToken = (token) => {
+  AUTH_TOKEN = token || null;
+  try {
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
+      if (AUTH_TOKEN) {
+        window.localStorage.setItem('mseuf_auth_token', AUTH_TOKEN);
+      } else {
+        window.localStorage.removeItem('mseuf_auth_token');
+      }
+    }
+  } catch (e) {
+    // ignore storage errors
+  }
+};
+
+function getAuthHeaders(extra = {}) {
+  const headers = {
+    Accept: 'application/json',
+    ...extra,
+  };
+  if (AUTH_TOKEN) {
+    headers.Authorization = `Bearer ${AUTH_TOKEN}`;
+  }
+  return headers;
+}
+
+/**
+ * Authenticate user with email & password.
+ */
+export async function loginUser({ email, password }) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ email, password }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) {
+      const errMsg =
+        json.message ||
+        (json.errors ? Object.values(json.errors).flat().join(', ') : 'Invalid credentials.');
+      return { success: false, message: errMsg };
+    }
+    if (json.token) {
+      setAuthToken(json.token);
+    }
+    return json;
+  } catch (err) {
+    return {
+      success: false,
+      message: `Could not connect to Laravel backend (${API_BASE_URL}).`,
+    };
+  }
+}
+
+/**
+ * Register a new student account.
+ */
+export async function registerUser({
+  name,
+  email,
+  studentNumber,
+  password,
+  passwordConfirmation,
+}) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({
+        name,
+        email,
+        student_number: studentNumber || null,
+        password,
+        password_confirmation: passwordConfirmation,
+      }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) {
+      const errMsg =
+        json.message ||
+        (json.errors ? Object.values(json.errors).flat().join(', ') : 'Registration failed.');
+      return { success: false, message: errMsg };
+    }
+    if (json.token) {
+      setAuthToken(json.token);
+    }
+    return json;
+  } catch (err) {
+    return {
+      success: false,
+      message: `Could not connect to Laravel backend (${API_BASE_URL}).`,
+    };
+  }
+}
+
+/**
+ * Fetch current authenticated user profile & bookings.
+ */
+export async function fetchCurrentUser() {
+  if (!AUTH_TOKEN) return null;
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/me`, {
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) {
+      if (res.status === 401) setAuthToken(null);
+      return null;
+    }
+    const json = await res.json();
+    return json.user ? json : null;
+  } catch (err) {
+    return null;
+  }
+}
+
+/**
+ * Sign out current user.
+ */
+export async function logoutUser() {
+  try {
+    if (AUTH_TOKEN) {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
+        method: 'POST',
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+      });
+    }
+  } catch (err) {
+    // ignore network errors on logout
+  } finally {
+    setAuthToken(null);
+  }
+}
+
 /**
  * Fetch all upcoming campus theater events.
  */
 export async function fetchEvents() {
   try {
     const res = await fetch(`${API_BASE_URL}/events`, {
-      headers: { Accept: 'application/json' },
+      headers: getAuthHeaders(),
     });
     if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
     const json = await res.json();
@@ -39,7 +190,7 @@ export async function fetchEvents() {
 export async function fetchEventSeats(eventId) {
   try {
     const res = await fetch(`${API_BASE_URL}/events/${eventId}/seats`, {
-      headers: { Accept: 'application/json' },
+      headers: getAuthHeaders(),
     });
     if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
     return await res.json();
@@ -56,10 +207,9 @@ export async function bookSeats(eventId, { seatIds, studentName, gcashReference 
   try {
     const res = await fetch(`${API_BASE_URL}/events/${eventId}/book`, {
       method: 'POST',
-      headers: {
+      headers: getAuthHeaders({
         'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
+      }),
       body: JSON.stringify({
         seat_ids: seatIds,
         student_name: studentName,
@@ -90,7 +240,7 @@ export async function bookSeats(eventId, { seatIds, studentName, gcashReference 
 export async function fetchBooking(bookingId) {
   try {
     const res = await fetch(`${API_BASE_URL}/bookings/${bookingId}`, {
-      headers: { Accept: 'application/json' },
+      headers: getAuthHeaders(),
     });
     if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
     const json = await res.json();
@@ -109,7 +259,7 @@ function getFallbackEvents() {
     {
       id: 1,
       title: 'Hiyas ng Enverga 2026: Coronation Night',
-      venue: 'MSEUF University Gymnasium & Cultural Center',
+      venue: 'Little Theater, AEC Building',
       formatted_date: 'Saturday, October 24, 2026',
       formatted_time: '06:00 PM',
       pricing_type: 'paid',
@@ -137,7 +287,7 @@ function getFallbackEvents() {
     {
       id: 3,
       title: 'Enverga Cultural Guild: Kundiman sa Takipsilim',
-      venue: 'University Auditorium',
+      venue: 'Little Theater, AEC Building',
       formatted_date: 'Wednesday, December 02, 2026',
       formatted_time: '05:00 PM',
       pricing_type: 'paid',
@@ -179,7 +329,7 @@ function getFallbackSeats(eventId) {
     event: {
       id: eventId,
       title: 'Hiyas ng Enverga 2026',
-      venue: 'MSEUF Gymnasium',
+      venue: 'Little Theater, AEC Building',
       pricing_type: 'paid',
       regular_price: 150.0,
       vip_price: 300.0,

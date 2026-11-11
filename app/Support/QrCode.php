@@ -2,8 +2,8 @@
 
 namespace App\Support;
 
-use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
 use Illuminate\Support\HtmlString;
@@ -14,8 +14,9 @@ class QrCode
 
     public static function size(int $size): self
     {
-        $instance = new static();
+        $instance = new static;
         $instance->size = $size;
+
         return $instance;
     }
 
@@ -23,7 +24,7 @@ class QrCode
     {
         $renderer = new ImageRenderer(
             new RendererStyle($this->size, 1),
-            new SvgImageBackEnd()
+            new SvgImageBackEnd
         );
         $writer = new Writer($renderer);
         $svg = $writer->writeString($text);

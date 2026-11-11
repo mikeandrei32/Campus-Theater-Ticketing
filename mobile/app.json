@@ -10,6 +10,9 @@
     },
     "android": {
       "package": "edu.ph.mseuf.theater"
-    }
+    },
+    "plugins": [
+      "expo-status-bar"
+    ]
   }
 }

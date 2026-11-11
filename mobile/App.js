@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -12,22 +12,39 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { COLORS } from './src/constants/theme';
 import Header from './src/components/Header';
+import LoginScreen from './src/screens/LoginScreen';
+import RegisterScreen from './src/screens/RegisterScreen';
 import EventsCatalogScreen from './src/screens/EventsCatalogScreen';
 import SeatPickerScreen from './src/screens/SeatPickerScreen';
 import CheckoutModal from './src/screens/CheckoutModal';
 import BookingConfirmationScreen from './src/screens/BookingConfirmationScreen';
-import { getApiBaseUrl, setApiBaseUrl } from './src/services/api';
+import {
+  getApiBaseUrl,
+  setApiBaseUrl,
+  fetchCurrentUser,
+  logoutUser,
+} from './src/services/api';
 
 export default function App() {
-  // Navigation State
-  const [currentScreen, setCurrentScreen] = useState('catalog'); // 'catalog', 'seats', 'confirmation'
+  // Navigation State: Sign In ('login') is the first screen shown when opening the project
+  const [currentScreen, setCurrentScreen] = useState('login'); // 'login', 'register', 'catalog', 'seats', 'confirmation'
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [checkoutData, setCheckoutData] = useState(null);
   const [confirmedBooking, setConfirmedBooking] = useState(null);
+  const [user, setUser] = useState(null);
 
   // Settings Modal State (for configuring Laravel backend URL)
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [backendUrl, setBackendUrlState] = useState(getApiBaseUrl());
+
+  useEffect(() => {
+    fetchCurrentUser().then((res) => {
+      if (res && res.user) {
+        setUser(res.user);
+        setCurrentScreen('catalog');
+      }
+    });
+  }, []);
 
   // Handlers
   const handleSelectEvent = (event) => {
@@ -52,6 +69,20 @@ export default function App() {
     setCurrentScreen('catalog');
   };
 
+  const handleAuthSuccess = (authenticatedUser) => {
+    setUser(authenticatedUser);
+    setCurrentScreen(selectedEvent ? 'seats' : 'catalog');
+  };
+
+  const handleLogout = async () => {
+    await logoutUser();
+    setUser(null);
+    setSelectedEvent(null);
+    setCheckoutData(null);
+    setConfirmedBooking(null);
+    setCurrentScreen('login');
+  };
+
   const handleSaveApiUrl = () => {
     setApiBaseUrl(backendUrl);
     setSettingsVisible(false);
@@ -61,11 +92,22 @@ export default function App() {
   let headerTitle = null;
   let headerSubtitle = null;
   let showBack = false;
+  let onBackAction = () => setCurrentScreen('catalog');
 
-  if (currentScreen === 'seats') {
+  if (currentScreen === 'login') {
+    headerTitle = 'Sign In to Portal';
+    headerSubtitle = 'MSEUF University Theater & Cinema Ticketing';
+    showBack = false;
+  } else if (currentScreen === 'register') {
+    headerTitle = 'Create Student Account';
+    headerSubtitle = 'Register for MSEUF Theater & Cinema Ticketing';
+    showBack = true;
+    onBackAction = () => setCurrentScreen('login');
+  } else if (currentScreen === 'seats') {
     headerTitle = selectedEvent?.title || 'Interactive Seat Picker';
     headerSubtitle = 'Pick up to 4 cinema chairs';
     showBack = true;
+    onBackAction = () => setCurrentScreen('catalog');
   } else if (currentScreen === 'confirmation') {
     headerTitle = 'University Ticket Stub';
     headerSubtitle = 'Digital Reservation Pass';
@@ -81,12 +123,34 @@ export default function App() {
         title={headerTitle}
         subtitle={headerSubtitle}
         showBack={showBack}
-        onBack={() => setCurrentScreen('catalog')}
+        onBack={onBackAction}
         onSettingsPress={() => setSettingsVisible(true)}
+        user={user}
+        onAuthPress={
+          currentScreen === 'login'
+            ? () => setCurrentScreen('register')
+            : () => setCurrentScreen('login')
+        }
+        authActionLabel={currentScreen === 'login' ? 'Sign Up' : 'Sign In'}
+        onLogoutPress={handleLogout}
       />
 
-      {/* Screen Router */}
+      {/* Screen Router (Separate pages for Login, Register, Catalog, Seats, Confirmation) */}
       <View style={styles.content}>
+        {currentScreen === 'login' && (
+          <LoginScreen
+            onAuthSuccess={handleAuthSuccess}
+            onNavigateToRegister={() => setCurrentScreen('register')}
+          />
+        )}
+
+        {currentScreen === 'register' && (
+          <RegisterScreen
+            onAuthSuccess={handleAuthSuccess}
+            onNavigateToLogin={() => setCurrentScreen('login')}
+          />
+        )}
+
         {currentScreen === 'catalog' && (
           <EventsCatalogScreen onSelectEvent={handleSelectEvent} />
         )}
@@ -110,6 +174,7 @@ export default function App() {
       <CheckoutModal
         visible={!!checkoutData}
         data={checkoutData}
+        user={user}
         onClose={() => setCheckoutData(null)}
         onBookingSuccess={handleBookingSuccess}
       />
@@ -125,7 +190,7 @@ export default function App() {
           <View style={styles.settingsCard}>
             <Text style={styles.settingsTitle}>⚙ Laravel Backend Connection</Text>
             <Text style={styles.settingsSubtitle}>
-              Connect React Native mobile frontend to your Laravel MVC server.
+              Physical phones use the Expo host automatically. Laravel must be reachable on your Wi-Fi network.
             </Text>
 
             <Text style={styles.settingsLabel}>API Base URL:</Text>
@@ -145,7 +210,7 @@ export default function App() {
                 style={styles.presetBtn}
                 onPress={() => setBackendUrlState('http://localhost:8000/api')}
               >
-                <Text style={styles.presetBtnText}>Web / iOS (localhost)</Text>
+                <Text style={styles.presetBtnText}>Web / iOS Simulator (localhost)</Text>
               </TouchableOpacity>
 
               <TouchableOpacity

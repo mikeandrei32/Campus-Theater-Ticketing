@@ -2,7 +2,17 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { COLORS } from '../constants/theme';
 
-export default function Header({ title, subtitle, showBack, onBack, onSettingsPress }) {
+export default function Header({
+  title,
+  subtitle,
+  showBack,
+  onBack,
+  onSettingsPress,
+  user,
+  onAuthPress,
+  authActionLabel = 'Sign In',
+  onLogoutPress,
+}) {
   return (
     <View style={styles.header}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.maroonDark} />
@@ -24,11 +34,36 @@ export default function Header({ title, subtitle, showBack, onBack, onSettingsPr
           </View>
         </View>
 
-        {onSettingsPress && (
-          <TouchableOpacity onPress={onSettingsPress} style={styles.settingsBtn} activeOpacity={0.7}>
-            <Text style={styles.settingsBtnText}>⚙</Text>
-          </TouchableOpacity>
-        )}
+        <View style={styles.rightActions}>
+          {user ? (
+            <TouchableOpacity
+              onPress={onLogoutPress}
+              style={styles.userPill}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.userPillName} numberOfLines={1}>
+                👤 {user.name.split(' ')[0]}
+              </Text>
+              <Text style={styles.userPillLogout}>Sign Out</Text>
+            </TouchableOpacity>
+          ) : (
+            onAuthPress && (
+              <TouchableOpacity
+                onPress={onAuthPress}
+                style={styles.signInBtn}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.signInBtnText}>{authActionLabel}</Text>
+              </TouchableOpacity>
+            )
+          )}
+
+          {onSettingsPress && (
+            <TouchableOpacity onPress={onSettingsPress} style={styles.settingsBtn} activeOpacity={0.7}>
+              <Text style={styles.settingsBtnText}>⚙</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {/* Screen Title (if different from brand) */}
@@ -64,6 +99,13 @@ const styles = StyleSheet.create({
   brandLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
+    marginRight: 8,
+  },
+  rightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   backBtn: {
     marginRight: 10,
@@ -107,6 +149,37 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: '700',
     letterSpacing: 0.5,
+  },
+  signInBtn: {
+    backgroundColor: COLORS.vipGold,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  signInBtnText: {
+    color: '#3D0000',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  userPill: {
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    alignItems: 'flex-end',
+    maxWidth: 110,
+  },
+  userPillName: {
+    color: COLORS.white,
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  userPillLogout: {
+    color: COLORS.vipGold,
+    fontSize: 8,
+    fontWeight: '800',
   },
   settingsBtn: {
     padding: 6,

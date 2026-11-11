@@ -1,4 +1,6 @@
-<x-app-layout>
+@extends('layouts.admin')
+
+@section('content')
 <div class="py-10 bg-gray-50 text-gray-900 min-h-screen" x-data="cinemaPicker({{ $event->pricing_type === 'paid' ? 'true' : 'false' }}, {{ (float)$event->vip_price }}, {{ (float)$event->regular_price }})">
     <div class="max-w-4xl mx-auto px-4">
         
@@ -235,7 +237,7 @@
                     <div class="space-y-3 mb-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 mb-1">Student Full Name</label>
-                            <input type="text" name="student_name" placeholder="e.g., Juan Dela Cruz" class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-maroon-500">
+                            <input type="text" name="student_name" value="{{ old('student_name', auth()->user()?->name ?? '') }}" placeholder="e.g., Juan Dela Cruz" class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-maroon-500">
                         </div>
 
                         <template x-if="isPaid">
@@ -303,4 +305,4 @@ function cinemaPicker(isPaid, vipPrice, regularPrice) {
     }
 }
 </script>
-</x-app-layout>
+@endsection

@@ -35,7 +35,7 @@ class SeatBookingApiController extends Controller
                     'id' => $seat->id,
                     'row_label' => $seat->row_label,
                     'seat_number' => $seat->seat_number,
-                    'seat_code' => $seat->row_label . $seat->seat_number,
+                    'seat_code' => $seat->row_label.$seat->seat_number,
                     'tier' => $seat->tier,
                     'is_vip' => $seat->tier === 'vip',
                     'is_occupied' => in_array($seat->id, $occupiedSeatIds),
@@ -100,22 +100,28 @@ class SeatBookingApiController extends Controller
             $totalAmount = 0.00;
             if ($event->pricing_type === 'paid') {
                 foreach ($selectedSeats as $seat) {
-                    $totalAmount += ($seat->tier === 'vip') ? (float)$event->vip_price : (float)$event->regular_price;
+                    $totalAmount += ($seat->tier === 'vip') ? (float) $event->vip_price : (float) $event->regular_price;
                 }
             }
 
-            // Student user identification
-            $studentName = $request->input('student_name', 'MSEUF Mobile Attendee');
-            $user = User::firstOrCreate(
-                ['email' => Str::slug($studentName) . '@student.mseuf.edu.ph'],
-                ['name' => $studentName, 'password' => bcrypt('student123')]
-            );
+            // Student user identification (prefer authenticated token/session user)
+            $authUser = AuthApiController::resolveUser($request);
+            if ($authUser) {
+                $user = $authUser;
+            } else {
+                $studentName = trim((string) $request->input('student_name', 'MSEUF Mobile Attendee')) ?: 'MSEUF Mobile Attendee';
+                $slug = Str::slug($studentName) ?: 'student';
+                $user = User::firstOrCreate(
+                    ['email' => $slug.'@student.mseuf.edu.ph'],
+                    ['name' => $studentName, 'password' => bcrypt('student123')]
+                );
+            }
 
             // Create Master Booking
             $booking = Booking::create([
                 'user_id' => $user->id,
                 'event_id' => $event->id,
-                'booking_reference' => 'MSEUF-' . strtoupper(Str::random(6)),
+                'booking_reference' => 'MSEUF-'.strtoupper(Str::random(6)),
                 'total_seats' => $selectedSeats->count(),
                 'total_amount' => $totalAmount,
                 'payment_status' => $event->pricing_type === 'free' ? 'free' : 'paid',
@@ -146,7 +152,7 @@ class SeatBookingApiController extends Controller
                     'attendee_name' => $booking->user->name,
                     'attendee_email' => $booking->user->email,
                     'total_seats' => $booking->total_seats,
-                    'total_amount' => (float)$booking->total_amount,
+                    'total_amount' => (float) $booking->total_amount,
                     'payment_status' => $booking->payment_status,
                     'gcash_reference' => $booking->gcash_reference,
                     'status' => $booking->status,
@@ -162,7 +168,7 @@ class SeatBookingApiController extends Controller
                             'seat_id' => $ticket->seat->id,
                             'row' => $ticket->seat->row_label,
                             'number' => $ticket->seat->seat_number,
-                            'seat_code' => $ticket->seat->row_label . $ticket->seat->seat_number,
+                            'seat_code' => $ticket->seat->row_label.$ticket->seat->seat_number,
                             'tier' => $ticket->seat->tier,
                             'qr_token' => $ticket->qr_token,
                         ];
@@ -187,7 +193,7 @@ class SeatBookingApiController extends Controller
                 'attendee_name' => $booking->user->name,
                 'attendee_email' => $booking->user->email,
                 'total_seats' => $booking->total_seats,
-                'total_amount' => (float)$booking->total_amount,
+                'total_amount' => (float) $booking->total_amount,
                 'payment_status' => $booking->payment_status,
                 'gcash_reference' => $booking->gcash_reference,
                 'status' => $booking->status,
@@ -204,7 +210,7 @@ class SeatBookingApiController extends Controller
                         'seat_id' => $ticket->seat->id,
                         'row' => $ticket->seat->row_label,
                         'number' => $ticket->seat->seat_number,
-                        'seat_code' => $ticket->seat->row_label . $ticket->seat->seat_number,
+                        'seat_code' => $ticket->seat->row_label.$ticket->seat->seat_number,
                         'tier' => $ticket->seat->tier,
                         'qr_token' => $ticket->qr_token,
                     ];

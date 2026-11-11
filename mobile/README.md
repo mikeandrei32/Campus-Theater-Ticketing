@@ -42,9 +42,9 @@ Authentic mobile client for the **MSEUF Cinema-Style Theater Ticketing System**,
 ### 1. Make Sure Laravel MVC Server is Running
 In the root directory (`Midterm-Project`):
 ```bash
-php artisan serve
+php artisan serve --host=0.0.0.0 --port=8000
 ```
-*(Server will listen at `http://127.0.0.1:8000`)*
+The server listens on all network interfaces. Keep the computer and phone on the same Wi-Fi network, and allow PHP through the Windows Firewall on private networks if prompted.
 
 ### 2. Start the React Native Mobile App
 In this `mobile` directory:
@@ -53,7 +53,7 @@ npm start
 ```
 
 ### 3. Open on Your Device
-- **Physical Phone (Android/iPhone)**: Scan the QR code using the **Expo Go** app from the Google Play Store or Apple App Store. Ensure your phone is connected to the same Wi-Fi network as your computer, and tap the ⚙ icon in the app header to point to your computer's local IP (e.g. `http://192.168.1.XX:8000/api`).
-- **Android Emulator**: Press `a` in the terminal (automatically routes to `http://10.0.2.2:8000/api`).
+- **Physical Phone (Android/iPhone)**: Scan the QR code using the **Expo Go** app from the Google Play Store or Apple App Store. Ensure your phone is connected to the same Wi-Fi network as your computer. The app uses the Expo host address automatically; if needed, open the ⚙ settings and set the API URL to `http://<COMPUTER-WIFI-IP>:8000/api` (find the IPv4 address with `ipconfig` on Windows). You can verify connectivity by opening `http://<COMPUTER-WIFI-IP>:8000/api/events` in the phone's browser.
+- **Android Emulator**: Press `a` in the terminal. The app uses Expo's detected host by default; if needed, open settings and select the Android Emulator preset (`http://10.0.2.2:8000/api`).
 - **iOS Simulator**: Press `i` in the terminal.
 - **Web Browser**: Press `w` in the terminal to preview in Chrome/Edge.

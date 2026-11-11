@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,16 +15,22 @@ import {
 import { COLORS } from '../constants/theme';
 import { bookSeats } from '../services/api';
 
-export default function CheckoutModal({ visible, data, onClose, onBookingSuccess }) {
+export default function CheckoutModal({ visible, data, user, onClose, onBookingSuccess }) {
+  const [studentName, setStudentName] = useState(user?.name || 'MSEUF Student');
+  const [gcashRef, setGcashRef] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+
+  useEffect(() => {
+    if (user?.name) {
+      setStudentName(user.name);
+    }
+  }, [user]);
+
   if (!data) return null;
 
   const { event, selectedSeats, totalCost } = data;
   const isPaid = event.pricing_type === 'paid';
-
-  const [studentName, setStudentName] = useState('MSEUF Student');
-  const [gcashRef, setGcashRef] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
 
   const handleSubmit = async () => {
     setErrorMessage(null);
