@@ -71,14 +71,14 @@ export default function EventsCatalogScreen({ onSelectEvent }) {
           <Text style={styles.eventTitle}>{item.title}</Text>
 
           <View style={styles.metaRow}>
-            <Text style={styles.metaIcon}>📍</Text>
+            <Text style={styles.metaLabel}>Venue:</Text>
             <Text style={styles.metaText} numberOfLines={1}>{item.venue}</Text>
           </View>
 
           <View style={styles.metaRow}>
-            <Text style={styles.metaIcon}>📅</Text>
+            <Text style={styles.metaLabel}>Date:</Text>
             <Text style={styles.metaText}>{item.formatted_date || 'Upcoming'}</Text>
-            <Text style={styles.timeTag}>⏰ {item.formatted_time || 'TBA'}</Text>
+            <Text style={styles.timeTag}>{item.formatted_time || 'TBA'}</Text>
           </View>
 
           {/* Seat Availability Progress Bar */}
@@ -117,7 +117,7 @@ export default function EventsCatalogScreen({ onSelectEvent }) {
       {/* Campus Banner */}
       <View style={styles.taglineBanner}>
         <Text style={styles.taglineBannerText}>
-          🎭 MSEUF CAMPUS THEATER & FESTIVALS
+          MSEUF CAMPUS THEATER & FESTIVALS
         </Text>
       </View>
 
@@ -288,8 +288,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 6,
   },
-  metaIcon: {
-    fontSize: 13,
+  metaLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.maroon,
     marginRight: 6,
   },
   metaText: {

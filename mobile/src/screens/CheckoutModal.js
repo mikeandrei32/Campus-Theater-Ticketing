@@ -17,6 +17,7 @@ import { bookSeats } from '../services/api';
 
 export default function CheckoutModal({ visible, data, user, onClose, onBookingSuccess }) {
   const [studentName, setStudentName] = useState(user?.name || 'MSEUF Student');
+  const [hasPaid, setHasPaid] = useState(false);
   const [gcashRef, setGcashRef] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -27,10 +28,25 @@ export default function CheckoutModal({ visible, data, user, onClose, onBookingS
     }
   }, [user]);
 
+  useEffect(() => {
+    if (visible) {
+      setHasPaid(false);
+      setGcashRef('');
+      setErrorMessage(null);
+    }
+  }, [visible]);
+
   if (!data) return null;
 
   const { event, selectedSeats, totalCost } = data;
   const isPaid = event.pricing_type === 'paid';
+
+  const handlePayWithGcash = () => {
+    const generatedRef = 'MP-' + Math.floor(10000000 + Math.random() * 90000000);
+    setGcashRef(generatedRef);
+    setHasPaid(true);
+    setErrorMessage(null);
+  };
 
   const handleSubmit = async () => {
     setErrorMessage(null);
@@ -40,7 +56,7 @@ export default function CheckoutModal({ visible, data, user, onClose, onBookingS
       return;
     }
 
-    if (isPaid && (!gcashRef.trim() || gcashRef.trim().length < 6)) {
+    if (isPaid && hasPaid && (!gcashRef.trim() || gcashRef.trim().length < 6)) {
       setErrorMessage('Please provide a valid GCash reference number (min 6 chars).');
       return;
     }
@@ -51,7 +67,7 @@ export default function CheckoutModal({ visible, data, user, onClose, onBookingS
     const result = await bookSeats(event.id, {
       seatIds,
       studentName: studentName.trim(),
-      gcashReference: isPaid ? gcashRef.trim() : null,
+      gcashReference: isPaid && hasPaid ? gcashRef.trim() : null,
     });
 
     setSubmitting(false);
@@ -86,8 +102,8 @@ export default function CheckoutModal({ visible, data, user, onClose, onBookingS
             {/* Event Info */}
             <View style={styles.eventSummaryBox}>
               <Text style={styles.eventTitle}>{event.title}</Text>
-              <Text style={styles.eventVenue}>📍 {event.venue}</Text>
-              <Text style={styles.eventDate}>📅 {event.formatted_date || 'Upcoming'}</Text>
+              <Text style={styles.eventVenue}>Venue: {event.venue}</Text>
+              <Text style={styles.eventDate}>Date: {event.formatted_date || 'Upcoming'}</Text>
             </View>
 
             {/* Selected Seats Chips */}
@@ -119,24 +135,61 @@ export default function CheckoutModal({ visible, data, user, onClose, onBookingS
               </Text>
             </View>
 
-            {/* GCash Reference (if paid) */}
+            {/* GCash Payment Step (only asks for / shows reference number after payment) */}
             {isPaid && (
               <View style={styles.section}>
                 <View style={styles.gcashHeader}>
-                  <Text style={styles.inputLabel}>GCash Reference Number *</Text>
+                  <Text style={styles.inputLabel}>Payment Status</Text>
                   <Text style={styles.gcashTag}>GCash Express</Text>
                 </View>
-                <TextInput
-                  style={styles.input}
-                  value={gcashRef}
-                  onChangeText={setGcashRef}
-                  placeholder="e.g. MP-84729302"
-                  placeholderTextColor={COLORS.textMuted}
-                  autoCapitalize="characters"
-                />
-                <Text style={styles.inputHint}>
-                  Send ₱{totalCost.toFixed(2)} to MSEUF Treasury GCash: 0917-123-4567
-                </Text>
+
+                {!hasPaid ? (
+                  <View style={styles.unpaidBox}>
+                    <View style={styles.unpaidRow}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.unpaidTitle}>Not Paid Yet</Text>
+                        <Text style={styles.unpaidSub}>
+                          You can reserve your seat now and pay at the gate, or pay ₱{totalCost.toFixed(2)} via GCash now.
+                        </Text>
+                      </View>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.payNowBtn}
+                      onPress={handlePayWithGcash}
+                      activeOpacity={0.85}
+                    >
+                      <Text style={styles.payNowBtnText}>
+                        Pay ₱{totalCost.toFixed(2)} via GCash Now
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <View style={styles.paidBox}>
+                    <View style={styles.paidHeaderRow}>
+                      <Text style={styles.paidBadge}>✓ Payment Completed via GCash</Text>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setHasPaid(false);
+                          setGcashRef('');
+                        }}
+                      >
+                        <Text style={styles.payLaterLink}>Change to Pay Later</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <Text style={styles.inputLabel}>GCash Reference Number *</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={gcashRef}
+                      onChangeText={setGcashRef}
+                      placeholder="e.g. MP-84729302"
+                      placeholderTextColor={COLORS.textMuted}
+                      autoCapitalize="characters"
+                    />
+                    <Text style={styles.inputHint}>
+                      Paid ₱{totalCost.toFixed(2)} to MSEUF Treasury GCash: 0917-123-4567
+                    </Text>
+                  </View>
+                )}
               </View>
             )}
 
@@ -151,7 +204,7 @@ export default function CheckoutModal({ visible, data, user, onClose, onBookingS
             {/* Error Message */}
             {errorMessage && (
               <View style={styles.errorBox}>
-                <Text style={styles.errorText}>⚠️ {errorMessage}</Text>
+                <Text style={styles.errorText}>{errorMessage}</Text>
               </View>
             )}
           </ScrollView>
@@ -307,6 +360,64 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
+  },
+  unpaidBox: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    padding: 12,
+  },
+  unpaidRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  unpaidTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+  },
+  unpaidSub: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+    lineHeight: 15,
+  },
+  payNowBtn: {
+    backgroundColor: '#007DFE',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  payNowBtnText: {
+    color: COLORS.white,
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  paidBox: {
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    borderRadius: 12,
+    padding: 12,
+  },
+  paidHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  paidBadge: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#065F46',
+  },
+  payLaterLink: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.maroon,
   },
   input: {
     backgroundColor: COLORS.background,

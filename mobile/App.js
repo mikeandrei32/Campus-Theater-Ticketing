@@ -188,7 +188,7 @@ export default function App() {
       >
         <View style={styles.settingsModalOverlay}>
           <View style={styles.settingsCard}>
-            <Text style={styles.settingsTitle}>⚙ Laravel Backend Connection</Text>
+            <Text style={styles.settingsTitle}>Laravel Backend Connection</Text>
             <Text style={styles.settingsSubtitle}>
               Physical phones use the Expo host automatically. Laravel must be reachable on your Wi-Fi network.
             </Text>

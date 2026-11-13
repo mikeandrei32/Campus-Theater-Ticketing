@@ -20,12 +20,6 @@ export default function LoginScreen({ onAuthSuccess, onNavigateToRegister }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fillDemo = (demoEmail, demoPass) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    setError(null);
-  };
-
   const handleLogin = async () => {
     setError(null);
 
@@ -62,7 +56,7 @@ export default function LoginScreen({ onAuthSuccess, onNavigateToRegister }) {
         {/* Campus Tagline Banner */}
         <View style={styles.taglineBanner}>
           <Text style={styles.taglineBannerText}>
-            🎭 MSEUF UNIVERSITY THEATER • SIGN IN PORTAL
+            MSEUF UNIVERSITY THEATER • SIGN IN PORTAL
           </Text>
         </View>
 
@@ -84,7 +78,7 @@ export default function LoginScreen({ onAuthSuccess, onNavigateToRegister }) {
           {/* Error Banner */}
           {error && (
             <View style={styles.errorBox}>
-              <Text style={styles.errorText}>⚠️ {error}</Text>
+              <Text style={styles.errorText}>{error}</Text>
             </View>
           )}
 
@@ -138,28 +132,6 @@ export default function LoginScreen({ onAuthSuccess, onNavigateToRegister }) {
               <Text style={styles.submitBtnText}>Sign In to Portal ›</Text>
             )}
           </TouchableOpacity>
-
-          {/* Quick Demo Credentials */}
-          <View style={styles.demoSection}>
-            <Text style={styles.demoTitle}>⚡ QUICK DEMO ACCOUNTS</Text>
-            <View style={styles.demoRow}>
-              <TouchableOpacity
-                style={styles.demoChip}
-                onPress={() => fillDemo('student@mseuf.edu.ph', 'password')}
-              >
-                <Text style={styles.demoChipLabel}>🎓 Student Demo</Text>
-                <Text style={styles.demoChipSub}>student@mseuf.edu.ph</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.demoChip}
-                onPress={() => fillDemo('admin@mseuf.edu.ph', 'password')}
-              >
-                <Text style={styles.demoChipLabel}>🔑 Admin Demo</Text>
-                <Text style={styles.demoChipSub}>admin@mseuf.edu.ph</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
 
           {/* Link to Separate Register Screen */}
           <View style={styles.footerRow}>
@@ -330,41 +302,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '800',
     letterSpacing: 0.3,
-  },
-  demoSection: {
-    marginTop: 18,
-    paddingTop: 14,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-  },
-  demoTitle: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: COLORS.textMuted,
-    marginBottom: 8,
-    letterSpacing: 0.5,
-  },
-  demoRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  demoChip: {
-    flex: 1,
-    backgroundColor: COLORS.maroonPale,
-    borderWidth: 1,
-    borderColor: COLORS.maroonBorder,
-    borderRadius: 10,
-    padding: 8,
-  },
-  demoChipLabel: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: COLORS.maroon,
-  },
-  demoChipSub: {
-    fontSize: 9,
-    color: COLORS.textSecondary,
-    marginTop: 1,
   },
   footerRow: {
     alignItems: 'center',

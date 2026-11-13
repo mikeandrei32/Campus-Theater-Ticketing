@@ -89,7 +89,7 @@ export async function loginUser({ email, password }) {
 }
 
 /**
- * Register a new student account.
+ * Step 1 of Registration: Validate details & send 6-digit verification code to email.
  */
 export async function registerUser({
   name,
@@ -119,6 +119,61 @@ export async function registerUser({
     }
     if (json.token) {
       setAuthToken(json.token);
+    }
+    return json;
+  } catch (err) {
+    return {
+      success: false,
+      message: `Could not connect to Laravel backend (${API_BASE_URL}).`,
+    };
+  }
+}
+
+/**
+ * Step 2 of Registration: Verify 6-digit email OTP code and create the student account.
+ */
+export async function verifyRegistrationCode({ email, code }) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/verify-registration`, {
+      method: 'POST',
+      headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ email, code }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) {
+      const errMsg =
+        json.message ||
+        (json.errors ? Object.values(json.errors).flat().join(', ') : 'Verification failed.');
+      return { success: false, message: errMsg };
+    }
+    if (json.token) {
+      setAuthToken(json.token);
+    }
+    return json;
+  } catch (err) {
+    return {
+      success: false,
+      message: `Could not connect to Laravel backend (${API_BASE_URL}).`,
+    };
+  }
+}
+
+/**
+ * Resend 6-digit verification code to pending registration email.
+ */
+export async function resendRegistrationCode({ email }) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/resend-verification`, {
+      method: 'POST',
+      headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ email }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) {
+      const errMsg =
+        json.message ||
+        (json.errors ? Object.values(json.errors).flat().join(', ') : 'Could not resend code.');
+      return { success: false, message: errMsg };
     }
     return json;
   } catch (err) {

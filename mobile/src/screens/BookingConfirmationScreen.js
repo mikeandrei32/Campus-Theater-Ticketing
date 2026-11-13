@@ -93,7 +93,11 @@ export default function BookingConfirmationScreen({ booking, onBackToShows }) {
             <View>
               <Text style={styles.paymentBoxLabel}>PAYMENT STATUS</Text>
               <Text style={styles.paymentBoxValue}>
-                {isFree ? 'FREE ADMISSION' : 'PAID VIA GCASH'}
+                {isFree
+                  ? 'FREE ADMISSION'
+                  : booking.gcash_reference
+                    ? 'PAID VIA GCASH'
+                    : 'UNPAID • PAY AT GATE'}
               </Text>
               {booking.gcash_reference && (
                 <Text style={styles.gcashRef}>Ref: {booking.gcash_reference}</Text>

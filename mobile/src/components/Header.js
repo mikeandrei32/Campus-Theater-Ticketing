@@ -42,7 +42,7 @@ export default function Header({
               activeOpacity={0.8}
             >
               <Text style={styles.userPillName} numberOfLines={1}>
-                👤 {user.name.split(' ')[0]}
+                {user.name.split(' ')[0]}
               </Text>
               <Text style={styles.userPillLogout}>Sign Out</Text>
             </TouchableOpacity>
@@ -60,7 +60,7 @@ export default function Header({
 
           {onSettingsPress && (
             <TouchableOpacity onPress={onSettingsPress} style={styles.settingsBtn} activeOpacity={0.7}>
-              <Text style={styles.settingsBtnText}>⚙</Text>
+              <Text style={styles.settingsBtnText}>API</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -182,13 +182,15 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   settingsBtn: {
-    padding: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
     borderRadius: 8,
     backgroundColor: 'rgba(255,255,255,0.15)',
   },
   settingsBtnText: {
     color: COLORS.white,
-    fontSize: 16,
+    fontSize: 10,
+    fontWeight: '800',
   },
   titleRow: {
     marginTop: 12,
