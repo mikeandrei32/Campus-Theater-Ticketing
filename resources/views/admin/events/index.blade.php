@@ -25,13 +25,14 @@
             </div>
 
             <!-- Quick Action: Post New Show -->
-            <div class="shrink-0">
-                <a href="{{ route('admin.events.create') }}" 
-                   class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-vipGold hover:bg-amber-400 text-maroon-950 font-black text-sm tracking-wide shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
-                    <span class="text-lg">➕</span>
-                    <span>Post New Play / Cine</span>
-                </a>
-            </div>
+            @if(auth()->user()?->canManageTheater())
+                <div class="shrink-0">
+                    <a href="{{ route('admin.events.create') }}" 
+                       class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-vipGold hover:bg-amber-400 text-maroon-950 font-black text-sm tracking-wide shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
+                        <span>+ Post New Play / Cine</span>
+                    </a>
+                </div>
+            @endif
         </div>
 
         <!-- Metric KPI Cards (Clean, beginner-friendly analytics) -->
@@ -97,8 +98,7 @@
                        name="search" 
                        value="{{ $searchQuery }}" 
                        placeholder="Search title or venue..." 
-                       class="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-gray-300 focus:ring-2 focus:ring-maroon-700 focus:outline-none">
-                <span class="absolute left-3 top-2.5 text-gray-400 text-xs">🔍</span>
+                       class="w-full px-4 py-2 text-xs rounded-xl border border-gray-300 focus:ring-2 focus:ring-maroon-700 focus:outline-none">
             </div>
             <button type="submit" class="px-4 py-2 bg-maroon-700 hover:bg-maroon-800 text-white font-bold text-xs rounded-xl transition">
                 Search
@@ -175,7 +175,7 @@
 
                         <!-- Venue -->
                         <div class="mt-2.5 flex items-center gap-2 text-xs font-semibold text-gray-600">
-                            <span class="text-maroon-700 text-sm">📍</span>
+                            <span class="text-maroon-700 font-bold">Venue:</span>
                             <span>{{ $event->venue }}</span>
                         </div>
 
@@ -197,32 +197,32 @@
                     
                     <!-- Left: Quick link to edit or delete -->
                     <div class="flex items-center gap-2">
-                        <a href="{{ route('admin.events.edit', $event->id) }}" 
-                           class="px-3 py-1.5 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold text-xs transition flex items-center gap-1">
-                            <span>✏️</span>
-                            <span>Edit</span>
-                        </a>
+                        @if(auth()->user()?->canManageTheater())
+                            <a href="{{ route('admin.events.edit', $event->id) }}" 
+                               class="px-3 py-1.5 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold text-xs transition flex items-center gap-1">
+                                <span>Edit</span>
+                            </a>
 
-                        <!-- Delete Button with confirmation modal -->
-                        <form method="POST" action="{{ route('admin.events.destroy', $event->id) }}" onsubmit="return confirm('Are you sure you want to delete \'{{ addslashes($event->title) }}\'? This will also cancel all reservations for this show.');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="px-3 py-1.5 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 font-bold text-xs transition flex items-center gap-1">
-                                <span>🗑️</span>
-                                <span>Delete</span>
-                            </button>
-                        </form>
+                            <!-- Delete Button with confirmation modal -->
+                            <form method="POST" action="{{ route('admin.events.destroy', $event->id) }}" onsubmit="return confirm('Are you sure you want to delete \'{{ addslashes($event->title) }}\'? This will also cancel all reservations for this show.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="px-3 py-1.5 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 font-bold text-xs transition flex items-center gap-1">
+                                    <span>Delete</span>
+                                </button>
+                            </form>
+                        @endif
                     </div>
 
                     <!-- Right: Reserve Seats & Manage Seat Map CTAs -->
                     <div class="flex items-center gap-2">
                         <a href="{{ route('theater.seats', $event->id) }}"
                            class="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-maroon-50 hover:bg-maroon-100 text-maroon-800 border border-maroon-200 font-extrabold text-xs tracking-wide transition">
-                            <span>🎟️ Book</span>
+                            <span>Book</span>
                         </a>
                         <a href="{{ route('admin.events.show', $event->id) }}" 
                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white font-extrabold text-xs tracking-wider uppercase transition shadow-md hover:shadow-lg">
-                            <span>🪑 Manage & Seats</span>
+                            <span>Manage & Seats</span>
                             <span>›</span>
                         </a>
                     </div>
@@ -230,7 +230,6 @@
             </div>
         @empty
             <div class="col-span-full py-16 text-center bg-white rounded-3xl border border-gray-200 p-8 shadow-sm">
-                <div class="text-5xl mb-3">🎭</div>
                 <h3 class="text-lg font-black text-gray-800">No Shows or Plays Found</h3>
                 <p class="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
                     @if($searchQuery || $currentFilter !== 'all')
@@ -241,7 +240,7 @@
                 </p>
                 <div class="mt-6">
                     <a href="{{ route('admin.events.create') }}" class="px-6 py-3 bg-maroon-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md hover:bg-maroon-800 transition">
-                        ➕ Post Your First Show
+                        + Post Your First Show
                     </a>
                 </div>
             </div>

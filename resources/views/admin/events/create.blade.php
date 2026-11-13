@@ -24,7 +24,6 @@
                 <span class="text-maroon-700 font-extrabold">Post New Show</span>
             </div>
             <h1 class="text-2xl sm:text-3xl font-black text-gray-900 flex items-center gap-3">
-                <span>➕</span>
                 <span>Post Campus Play or Cine Show</span>
             </h1>
             <p class="text-xs text-gray-500 mt-1">
@@ -74,8 +73,8 @@
                     </label>
                     <input type="hidden" name="venue" value="Little Theater, AEC Building">
                     <div class="flex items-center gap-3 p-3.5 bg-maroon-50 border-2 border-maroon-200 rounded-2xl text-maroon-900">
-                        <div class="w-9 h-9 rounded-xl bg-maroon-700 text-white flex items-center justify-center font-bold text-base shrink-0">
-                            🎭
+                        <div class="w-9 h-9 rounded-xl bg-maroon-700 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                            LT
                         </div>
                         <div>
                             <div class="font-extrabold text-sm text-maroon-950">Little Theater, AEC Building</div>
@@ -220,7 +219,6 @@
 
                     <button type="submit" 
                             class="px-8 py-3.5 bg-maroon-700 hover:bg-maroon-800 text-white font-black text-sm uppercase tracking-wider rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
-                        <span>🚀</span>
                         <span>Publish Show Now</span>
                     </button>
                 </div>
@@ -235,7 +233,6 @@
             
             <div class="flex items-center justify-between">
                 <span class="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <span>📱</span>
                     <span>Student Mobile App Live Preview</span>
                 </span>
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
@@ -279,12 +276,12 @@
                         <h4 class="text-sm font-black text-gray-900 line-clamp-1 leading-snug" x-text="title || 'Your Show Title Here'"></h4>
                         
                         <div class="flex items-center gap-1.5 text-[11px] text-gray-600 font-semibold">
-                            <span class="text-maroon-700">📍</span>
+                            <span class="text-maroon-700 font-bold">Venue:</span>
                             <span class="line-clamp-1" x-text="venue || 'MSEUF University Theater'"></span>
                         </div>
 
                         <div class="flex items-center gap-1.5 text-[11px] text-gray-600 font-semibold">
-                            <span>📅</span>
+                            <span class="text-maroon-700 font-bold">Date:</span>
                             <span x-text="showDate ? showDate.replace('T', ' • ') : 'Upcoming Date'"></span>
                         </div>
 

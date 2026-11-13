@@ -44,7 +44,7 @@
                 <!-- Benefits List -->
                 <div class="mt-8 space-y-3 text-xs font-semibold text-maroon-100">
                     <div class="flex items-center gap-3 bg-black/20 p-3 rounded-2xl border border-white/10">
-                        <span class="w-8 h-8 rounded-xl bg-vipGold/20 border border-vipGold/40 text-vipGold flex items-center justify-center text-sm shrink-0">🪑</span>
+                        <span class="w-8 h-8 rounded-xl bg-vipGold/20 border border-vipGold/40 text-vipGold flex items-center justify-center text-[11px] font-black shrink-0">01</span>
                         <div>
                             <div class="font-extrabold text-white">Reserve Up to 4 Seats</div>
                             <div class="text-[11px] text-maroon-200">Pick exact VIP front-row or Regular chairs</div>
@@ -52,15 +52,15 @@
                     </div>
 
                     <div class="flex items-center gap-3 bg-black/20 p-3 rounded-2xl border border-white/10">
-                        <span class="w-8 h-8 rounded-xl bg-vipGold/20 border border-vipGold/40 text-vipGold flex items-center justify-center text-sm shrink-0">📱</span>
+                        <span class="w-8 h-8 rounded-xl bg-vipGold/20 border border-vipGold/40 text-vipGold flex items-center justify-center text-[11px] font-black shrink-0">02</span>
                         <div>
-                            <div class="font-extrabold text-white">Web & Mobile Synced</div>
-                            <div class="text-[11px] text-maroon-200">Use one account across web and Expo mobile app</div>
+                            <div class="font-extrabold text-white">Website-Exclusive Account</div>
+                            <div class="text-[11px] text-maroon-200">Accounts created on the website sign in exclusively on the web portal</div>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-3 bg-black/20 p-3 rounded-2xl border border-white/10">
-                        <span class="w-8 h-8 rounded-xl bg-vipGold/20 border border-vipGold/40 text-vipGold flex items-center justify-center text-sm shrink-0">🔒</span>
+                        <span class="w-8 h-8 rounded-xl bg-vipGold/20 border border-vipGold/40 text-vipGold flex items-center justify-center text-[11px] font-black shrink-0">03</span>
                         <div>
                             <div class="font-extrabold text-white">Protected Ticket Stubs</div>
                             <div class="text-[11px] text-maroon-200">Anti-collision seat lock & verified QR tokens</div>
@@ -125,7 +125,6 @@
                         </div>
                         @error('name')
                             <p class="text-xs text-red-600 font-bold mt-1 flex items-center gap-1" role="alert">
-                                <span>⚠️</span>
                                 <span>{{ $message }}</span>
                             </p>
                         @enderror
@@ -168,7 +167,6 @@
                     </div>
                     @error('email')
                         <p class="text-xs text-red-600 font-bold -mt-2 flex items-center gap-1" role="alert">
-                            <span>⚠️</span>
                             <span>{{ $message }}</span>
                         </p>
                     @enderror
@@ -209,7 +207,6 @@
                         </div>
                         @error('password')
                             <p class="text-xs text-red-600 font-bold mt-1 flex items-center gap-1" role="alert">
-                                <span>⚠️</span>
                                 <span>{{ $message }}</span>
                             </p>
                         @enderror
@@ -270,7 +267,7 @@
                                 :disabled="loading"
                                 class="w-full py-3.5 px-6 rounded-2xl bg-maroon-700 hover:bg-maroon-800 disabled:opacity-60 disabled:cursor-not-allowed text-white font-black text-sm uppercase tracking-wider shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-maroon-700">
                             <span x-show="!loading" class="flex items-center gap-2">
-                                <span>Create Account</span>
+                                <span>Send Verification Code</span>
                                 <span>&rarr;</span>
                             </span>
                             <span x-show="loading" x-cloak class="flex items-center gap-2">
@@ -278,9 +275,12 @@
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                                 </svg>
-                                <span>Creating Account...</span>
+                                <span>Sending Verification Code...</span>
                             </span>
                         </button>
+                        <p class="text-[11px] text-gray-500 text-center mt-2">
+                            We will send a 6-digit verification code to your email before creating your account.
+                        </p>
                     </div>
                 </form>
 

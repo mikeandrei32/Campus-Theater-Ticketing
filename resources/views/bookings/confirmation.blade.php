@@ -141,8 +141,8 @@
     @else
         <!-- Empty State when user has no reservations yet -->
         <div class="w-full max-w-md bg-white rounded-3xl p-8 text-center shadow-sm border border-gray-200">
-            <div class="w-16 h-16 rounded-full bg-maroon-50 text-maroon-700 flex items-center justify-center mx-auto mb-4 text-3xl border border-maroon-200">
-                🎟️
+            <div class="w-16 h-16 rounded-full bg-maroon-50 text-maroon-700 flex items-center justify-center mx-auto mb-4 text-xs font-black border border-maroon-200">
+                PASS
             </div>
             <h2 class="text-xl font-black text-gray-900">No Theater Passes Yet</h2>
             <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">
@@ -151,7 +151,7 @@
             <div class="mt-6">
                 <a href="{{ route('admin.events.index') }}"
                    class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-maroon-700 hover:bg-maroon-800 text-white font-black text-xs uppercase tracking-wider shadow-md transition">
-                    <span>🎭 Browse Shows & Plays</span>
+                    <span>Browse Shows & Plays</span>
                     <span>&rarr;</span>
                 </a>
             </div>

@@ -12,7 +12,6 @@
                 <span class="text-maroon-700 font-extrabold">Student Reservations</span>
             </div>
             <h1 class="text-2xl sm:text-3xl font-black text-gray-900 flex items-center gap-2.5">
-                <span>📋</span>
                 <span>Student Reservations & Pass Master List</span>
             </h1>
             <p class="text-xs text-gray-500 mt-1">
@@ -22,7 +21,6 @@
 
         <div class="flex items-center gap-2">
             <button onclick="window.print()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl transition border border-gray-200 flex items-center gap-1.5 shadow-sm">
-                <span>🖨️</span>
                 <span>Print Attendee Sheet</span>
             </button>
         </div>
@@ -175,7 +173,6 @@
             </div>
         @else
             <div class="py-12 text-center text-gray-500">
-                <div class="text-4xl mb-2">📋</div>
                 <p class="font-bold text-base text-gray-800">No Reservations Found</p>
                 <p class="text-xs text-gray-400 mt-0.5">No student reservations match your search criteria.</p>
             </div>

@@ -18,28 +18,27 @@
             </h1>
         </div>
 
-        <div class="flex items-center gap-2.5 flex-wrap">
-            <a href="{{ route('admin.events.edit', $event->id) }}" 
-               class="px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
-                <span>✏️</span>
-                <span>Edit Show Details</span>
-            </a>
+        @if(auth()->user()?->canManageTheater())
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <a href="{{ route('admin.events.edit', $event->id) }}" 
+                   class="px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
+                    <span>Edit Show Details</span>
+                </a>
 
-            <a href="{{ route('admin.scanner') }}" 
-               class="px-4 py-2.5 rounded-xl bg-maroon-50 hover:bg-maroon-100 text-maroon-800 font-bold text-xs transition border border-maroon-200 flex items-center gap-1.5">
-                <span>🎟️</span>
-                <span>Gate Scanner</span>
-            </a>
+                <a href="{{ route('admin.scanner') }}" 
+                   class="px-4 py-2.5 rounded-xl bg-maroon-50 hover:bg-maroon-100 text-maroon-800 font-bold text-xs transition border border-maroon-200 flex items-center gap-1.5">
+                    <span>Gate Scanner</span>
+                </a>
 
-            <form method="POST" action="{{ route('admin.events.destroy', $event->id) }}" onsubmit="return confirm('Are you sure you want to delete this show?');">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="px-4 py-2.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs transition border border-red-200 flex items-center gap-1.5">
-                    <span>🗑️</span>
-                    <span>Delete</span>
-                </button>
-            </form>
-        </div>
+                <form method="POST" action="{{ route('admin.events.destroy', $event->id) }}" onsubmit="return confirm('Are you sure you want to delete this show?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="px-4 py-2.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs transition border border-red-200 flex items-center gap-1.5">
+                        <span>Delete</span>
+                    </button>
+                </form>
+            </div>
+        @endif
     </div>
 
     <!-- ========================================================================= -->
@@ -69,7 +68,7 @@
                     </span>
                 @endif
                 <div class="text-white text-xs font-semibold flex items-center gap-2">
-                    <span>📍 {{ $event->venue }}</span>
+                    <span>{{ $event->venue }}</span>
                 </div>
             </div>
         </div>
@@ -78,7 +77,6 @@
         <div class="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between">
             <div>
                 <div class="flex items-center gap-2 text-xs font-bold text-maroon-700 mb-1">
-                    <span>📅</span>
                     <span>{{ $event->show_date ? $event->show_date->format('l, F d, Y • h:i A') : 'TBA' }}</span>
                 </div>
                 <h2 class="text-2xl font-black text-gray-900 leading-snug">
@@ -126,7 +124,6 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
                 <h3 class="text-lg font-black text-gray-900 flex items-center gap-2">
-                    <span>🪑</span>
                     <span>Auditorium Live Seating Layout (60 Seats)</span>
                 </h3>
                 <p class="text-xs text-gray-500 mt-0.5">
@@ -154,7 +151,7 @@
         <div class="max-w-xl mx-auto mb-8 text-center">
             <div class="h-3.5 bg-gradient-to-r from-transparent via-maroon-700 to-transparent rounded-full opacity-70 mb-1"></div>
             <div class="text-[10px] uppercase font-black text-gray-400 tracking-widest">
-                🎭 AUDITORIUM STAGE / CINEMA SCREEN
+                AUDITORIUM STAGE / CINEMA SCREEN
             </div>
         </div>
 
@@ -230,7 +227,7 @@
                         Reserved by: <strong class="text-maroon-700" x-text="selectedSeatInfo?.student"></strong> &bull; Ref: <code class="font-mono" x-text="selectedSeatInfo?.bookingRef"></code>
                     </div>
                     <div class="text-xs text-emerald-700 font-bold mt-0.5" x-show="!selectedSeatInfo?.isOccupied">
-                        🟢 Seat is open and available for student booking on mobile app
+                        Seat is open and available for student booking on mobile app
                     </div>
                 </div>
             </div>
@@ -239,7 +236,7 @@
                 <template x-if="selectedSeatInfo?.isOccupied">
                     <span class="px-3 py-1 rounded-full text-xs font-bold"
                           :class="selectedSeatInfo?.checkedIn ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'">
-                        <span x-text="selectedSeatInfo?.checkedIn ? '✅ Checked In at Gate' : '⏳ Gate Check-In Pending'"></span>
+                        <span x-text="selectedSeatInfo?.checkedIn ? 'Checked In at Gate' : 'Gate Check-In Pending'"></span>
                     </span>
                 </template>
                 <button @click="selectedSeatInfo = null" class="text-xs text-gray-400 hover:text-gray-700 font-bold px-2 py-1">
@@ -258,7 +255,6 @@
         <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
             <div>
                 <h3 class="text-lg font-black text-gray-900 flex items-center gap-2">
-                    <span>📋</span>
                     <span>Student Attendee Reservations ({{ $bookings->count() }} Orders)</span>
                 </h3>
                 <p class="text-xs text-gray-500 mt-0.5">
@@ -318,7 +314,7 @@
                                     @endphp
                                     @if($checkedCount === $totalTickets && $totalTickets > 0)
                                         <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">
-                                            ✅ All Checked In
+                                            All Checked In
                                         </span>
                                     @elseif($checkedCount > 0)
                                         <span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]">
@@ -326,7 +322,7 @@
                                         </span>
                                     @else
                                         <span class="px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 font-bold text-[10px]">
-                                            ⏳ Pending
+                                            Pending
                                         </span>
                                     @endif
                                 </td>

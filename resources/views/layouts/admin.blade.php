@@ -84,33 +84,30 @@
                     @auth
                         <a href="{{ route('admin.events.index') }}" 
                            class="px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5 {{ request()->routeIs('admin.events.index') || request()->is('/') ? 'bg-white/20 text-white border border-white/30 shadow-inner' : 'text-maroon-100 hover:bg-white/10 hover:text-white' }}">
-                            <span>🎭</span>
                             <span>Shows & Plays</span>
                         </a>
 
-                        <a href="{{ route('admin.events.create') }}" 
-                           class="px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5 {{ request()->routeIs('admin.events.create') ? 'bg-vipGold text-maroon-950 font-black shadow-md' : 'bg-vipGold/90 hover:bg-vipGold text-maroon-950 font-extrabold shadow-sm' }}">
-                            <span>➕</span>
-                            <span>Post Show</span>
-                        </a>
+                        @if(auth()->user()?->canManageTheater())
+                            <a href="{{ route('admin.events.create') }}" 
+                               class="px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5 {{ request()->routeIs('admin.events.create') ? 'bg-vipGold text-maroon-950 font-black shadow-md' : 'bg-vipGold/90 hover:bg-vipGold text-maroon-950 font-extrabold shadow-sm' }}">
+                                <span>+ Post Show</span>
+                            </a>
 
-                        <a href="{{ route('admin.bookings.index') }}" 
-                           class="px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5 {{ request()->routeIs('admin.bookings.index') ? 'bg-white/20 text-white border border-white/30 shadow-inner' : 'text-maroon-100 hover:bg-white/10 hover:text-white' }}">
-                            <span>📋</span>
-                            <span>Reservations</span>
-                        </a>
+                            <a href="{{ route('admin.bookings.index') }}" 
+                               class="px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5 {{ request()->routeIs('admin.bookings.index') ? 'bg-white/20 text-white border border-white/30 shadow-inner' : 'text-maroon-100 hover:bg-white/10 hover:text-white' }}">
+                                <span>Reservations</span>
+                            </a>
 
-                        <a href="{{ route('admin.scanner') }}" 
-                           class="px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5 {{ request()->routeIs('admin.scanner') || request()->is('marshal/*') ? 'bg-white/20 text-white border border-white/30 shadow-inner' : 'text-maroon-100 hover:bg-white/10 hover:text-white' }}">
-                            <span>🎟️</span>
-                            <span>Gate Scanner</span>
-                        </a>
+                            <a href="{{ route('admin.scanner') }}" 
+                               class="px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5 {{ request()->routeIs('admin.scanner') || request()->is('marshal/*') ? 'bg-white/20 text-white border border-white/30 shadow-inner' : 'text-maroon-100 hover:bg-white/10 hover:text-white' }}">
+                                <span>Gate Scanner</span>
+                            </a>
+                        @endif
 
                         <div class="h-6 w-px bg-white/20 mx-1"></div>
 
                         <a href="{{ route('tickets.my-tickets') }}"
                            class="px-3 py-2 rounded-xl transition flex items-center gap-1.5 {{ request()->routeIs('tickets.my-tickets') || request()->routeIs('bookings.my') ? 'bg-white/20 text-white border border-white/30' : 'text-maroon-100 hover:bg-white/10 hover:text-white' }}">
-                            <span>🎫</span>
                             <span>My Passes</span>
                         </a>
 
@@ -134,13 +131,11 @@
                     @else
                         <a href="{{ route('login') }}"
                            class="px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 {{ request()->routeIs('login') ? 'bg-vipGold text-maroon-950 font-black shadow-md' : 'text-white hover:bg-white/15 border border-white/25' }}">
-                            <span>🔑</span>
                             <span>Sign In</span>
                         </a>
 
                         <a href="{{ route('register') }}"
                            class="px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 {{ request()->routeIs('register') || request()->routeIs('signup') ? 'bg-vipGold text-maroon-950 font-black shadow-md' : 'bg-white text-maroon-800 hover:bg-maroon-50 font-extrabold shadow-sm' }}">
-                            <span>✨</span>
                             <span>Create Account</span>
                         </a>
                     @endauth
@@ -160,16 +155,16 @@
         <div x-show="mobileMenu" x-cloak class="md:hidden border-t border-maroon-800 bg-maroon-900 px-4 py-4 space-y-2">
             @auth
                 <a href="{{ route('admin.events.index') }}" class="block px-3 py-2 rounded-lg text-sm font-bold text-white bg-maroon-800">
-                    🎭 Shows & Plays Catalog
+                    Shows & Plays Catalog
                 </a>
                 <a href="{{ route('admin.events.create') }}" class="block px-3 py-2 rounded-lg text-sm font-black text-maroon-950 bg-vipGold">
-                    ➕ Post New Play / Cine Show
+                    + Post New Play / Cine Show
                 </a>
                 <a href="{{ route('admin.bookings.index') }}" class="block px-3 py-2 rounded-lg text-sm font-bold text-maroon-100 hover:text-white">
-                    📋 Student Reservations
+                    Student Reservations
                 </a>
                 <a href="{{ route('admin.scanner') }}" class="block px-3 py-2 rounded-lg text-sm font-bold text-maroon-100 hover:text-white">
-                    🎟️ Gate Marshal Scanner
+                    Gate Marshal Scanner
                 </a>
 
                 <div class="pt-2 mt-2 border-t border-maroon-800 space-y-2">
@@ -179,23 +174,23 @@
                             <div class="text-[10px] text-vipGold font-bold uppercase">{{ auth()->user()->email }}</div>
                         </div>
                         <a href="{{ route('tickets.my-tickets') }}" class="px-2.5 py-1 rounded bg-white/15 text-white text-xs font-bold">
-                            🎫 My Passes
+                            My Passes
                         </a>
                     </div>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="w-full text-left px-3 py-2 rounded-lg text-sm font-bold text-red-200 hover:bg-red-900/40">
-                            🚪 Sign Out
+                            Sign Out
                         </button>
                     </form>
                 </div>
             @else
                 <div class="grid grid-cols-2 gap-2">
                     <a href="{{ route('login') }}" class="text-center px-3 py-2.5 rounded-lg text-xs font-black {{ request()->routeIs('login') ? 'bg-vipGold text-maroon-950' : 'text-white border border-white/30 bg-white/10' }}">
-                        🔑 Sign In
+                        Sign In
                     </a>
                     <a href="{{ route('register') }}" class="text-center px-3 py-2.5 rounded-lg text-xs font-black {{ request()->routeIs('register') || request()->routeIs('signup') ? 'bg-vipGold text-maroon-950' : 'text-maroon-950 bg-white' }}">
-                        ✨ Create Account
+                        Create Account
                     </a>
                 </div>
             @endauth
@@ -207,9 +202,7 @@
     <!-- ========================================================================= -->
     <div class="bg-[#FBF0F0] border-b border-[#E5C4C4] py-2 px-4 text-center">
         <p class="text-xs font-extrabold text-maroon-700 tracking-wide uppercase flex items-center justify-center gap-2">
-            <span>🎭</span>
             <span>MSEUF CAMPUS THEATER ADMIN & PLAY PUBLISHER • POST SHOWS FOR STUDENT MOBILE APP</span>
-            <span>🎬</span>
         </p>
     </div>
 
@@ -220,7 +213,6 @@
         @if(session('success'))
             <div x-data="{ show: true }" x-show="show" class="flex items-center justify-between p-4 mb-4 text-sm text-emerald-900 bg-emerald-100 border-2 border-emerald-400 rounded-2xl shadow-sm">
                 <div class="flex items-center gap-3">
-                    <span class="text-xl">✅</span>
                     <span class="font-bold">{{ session('success') }}</span>
                 </div>
                 <button @click="show = false" class="text-emerald-700 hover:text-emerald-900 text-lg font-black">&times;</button>
@@ -230,7 +222,6 @@
         @if(session('error'))
             <div x-data="{ show: true }" x-show="show" class="flex items-center justify-between p-4 mb-4 text-sm text-red-900 bg-red-100 border-2 border-red-400 rounded-2xl shadow-sm">
                 <div class="flex items-center gap-3">
-                    <span class="text-xl">⚠️</span>
                     <span class="font-bold">{{ session('error') }}</span>
                 </div>
                 <button @click="show = false" class="text-red-700 hover:text-red-900 text-lg font-black">&times;</button>
@@ -240,7 +231,7 @@
         @if($errors->any())
             <div class="p-4 mb-4 text-sm text-red-900 bg-red-50 border-2 border-red-300 rounded-2xl shadow-sm">
                 <p class="font-black mb-1 flex items-center gap-2">
-                    <span>⚠️</span> Please fix the following errors:
+                    Please fix the following errors:
                 </p>
                 <ul class="list-disc list-inside text-xs space-y-0.5 text-red-800">
                     @foreach($errors->all() as $error)

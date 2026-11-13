@@ -28,7 +28,7 @@
                         <span class="text-white">&bull;</span> Regular Tiers (Rows C-F)
                     </div>
                     <div class="flex items-center gap-1.5 bg-maroon-900/60 px-3 py-1.5 rounded-lg border border-maroon-700">
-                        <span class="text-amber-300">⚡</span> Real-Time Dynamic Selection
+                        <span class="text-amber-300">&bull;</span> Real-Time Dynamic Selection
                     </div>
                 </div>
             </div>

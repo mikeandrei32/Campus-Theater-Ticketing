@@ -19,7 +19,6 @@
             @if(session('status'))
                 <div class="mb-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs space-y-2">
                     <div class="font-black flex items-center gap-2">
-                        <span>✅</span>
                         <span>{{ session('status') }}</span>
                     </div>
                     @if(session('reset_url'))
@@ -27,7 +26,7 @@
                             <p class="text-[11px] text-emerald-800 mb-2">Click the button below to set your new password now:</p>
                             <a href="{{ session('reset_url') }}"
                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white font-black text-xs shadow-sm transition">
-                                <span>🔑 Reset Password Now</span>
+                                <span>Reset Password Now</span>
                                 <span>&rarr;</span>
                             </a>
                         </div>
@@ -52,7 +51,6 @@
                            class="w-full px-4 py-3 text-sm rounded-xl border @error('email') border-red-500 bg-red-50/30 @else border-gray-300 bg-gray-50/50 focus:bg-white @enderror focus:ring-2 focus:ring-maroon-700 focus:outline-none transition">
                     @error('email')
                         <p class="text-xs text-red-600 font-bold mt-1.5 flex items-center gap-1" role="alert">
-                            <span>⚠️</span>
                             <span>{{ $message }}</span>
                         </p>
                     @enderror

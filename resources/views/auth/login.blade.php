@@ -7,11 +7,7 @@
             email: '{{ old('email', '') }}',
             password: '',
             showPassword: false,
-            loading: false,
-            fillDemo(demoEmail, demoPass) {
-                this.email = demoEmail;
-                this.password = demoPass;
-            }
+            loading: false
          }">
 
         <!-- ========================================================================= -->
@@ -39,7 +35,7 @@
                 <!-- Feature Highlights -->
                 <div class="mt-8 space-y-3 text-xs font-semibold text-maroon-100">
                     <div class="flex items-center gap-3 bg-black/20 p-3 rounded-2xl border border-white/10">
-                        <span class="w-8 h-8 rounded-xl bg-vipGold/20 border border-vipGold/40 text-vipGold flex items-center justify-center text-sm shrink-0">🎭</span>
+                        <span class="w-8 h-8 rounded-xl bg-vipGold/20 border border-vipGold/40 text-vipGold flex items-center justify-center text-[11px] font-black shrink-0">01</span>
                         <div>
                             <div class="font-extrabold text-white">Interactive 60-Seat Grid</div>
                             <div class="text-[11px] text-maroon-200">Real-time VIP & Regular row selection</div>
@@ -47,34 +43,12 @@
                     </div>
 
                     <div class="flex items-center gap-3 bg-black/20 p-3 rounded-2xl border border-white/10">
-                        <span class="w-8 h-8 rounded-xl bg-vipGold/20 border border-vipGold/40 text-vipGold flex items-center justify-center text-sm shrink-0">🎟️</span>
+                        <span class="w-8 h-8 rounded-xl bg-vipGold/20 border border-vipGold/40 text-vipGold flex items-center justify-center text-[11px] font-black shrink-0">02</span>
                         <div>
                             <div class="font-extrabold text-white">Instant Digital QR Stubs</div>
                             <div class="text-[11px] text-maroon-200">Fast gate verification & pass management</div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Quick Demo Account Selector -->
-            <div class="relative z-10 mt-8 pt-6 border-t border-white/15">
-                <p class="text-[10px] font-black uppercase tracking-wider text-vipGold mb-2.5">
-                    ⚡ Quick Demo Credentials
-                </p>
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button"
-                            @click="fillDemo('student@mseuf.edu.ph', 'password')"
-                            class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-left transition focus:outline-none focus:ring-2 focus:ring-vipGold">
-                        <span class="block text-[11px] font-black text-white">🎓 Student Demo</span>
-                        <span class="block text-[10px] text-maroon-200 truncate">student@mseuf.edu.ph</span>
-                    </button>
-
-                    <button type="button"
-                            @click="fillDemo('admin@mseuf.edu.ph', 'password')"
-                            class="px-3 py-2 rounded-xl bg-vipGold/20 hover:bg-vipGold/30 border border-vipGold/40 text-left transition focus:outline-none focus:ring-2 focus:ring-vipGold">
-                        <span class="block text-[11px] font-black text-vipGold-light">🔑 Admin Demo</span>
-                        <span class="block text-[10px] text-maroon-100 truncate">admin@mseuf.edu.ph</span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -105,7 +79,6 @@
 
                 @if(session('status'))
                     <div class="mb-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-bold flex items-center gap-2.5">
-                        <span>✅</span>
                         <span>{{ session('status') }}</span>
                     </div>
                 @endif
@@ -136,7 +109,6 @@
                         </div>
                         @error('email')
                             <p class="text-xs text-red-600 font-bold mt-1.5 flex items-center gap-1" role="alert">
-                                <span>⚠️</span>
                                 <span>{{ $message }}</span>
                             </p>
                         @enderror
@@ -188,7 +160,6 @@
                         </div>
                         @error('password')
                             <p class="text-xs text-red-600 font-bold mt-1.5 flex items-center gap-1" role="alert">
-                                <span>⚠️</span>
                                 <span>{{ $message }}</span>
                             </p>
                         @enderror

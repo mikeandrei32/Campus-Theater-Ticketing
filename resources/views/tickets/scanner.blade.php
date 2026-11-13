@@ -14,7 +14,6 @@
                 <span class="text-maroon-700 font-extrabold">Gate Marshal Portal</span>
             </div>
             <h1 class="text-2xl sm:text-3xl font-black text-gray-900 flex items-center gap-2.5">
-                <span>🎟️</span>
                 <span>Digital Ticket & Booking Scanner</span>
             </h1>
             <p class="text-xs text-gray-500 mt-1">
@@ -49,7 +48,6 @@
                             @click="mode = 'manual'; stopCamera()"
                             class="px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-2"
                             :class="mode === 'manual' ? 'bg-white text-maroon-800 shadow-sm' : 'text-gray-600 hover:text-gray-900'">
-                        <span>⌨️</span>
                         <span>Booking Ref / Token Input</span>
                     </button>
 
@@ -57,7 +55,6 @@
                             @click="mode = 'camera'; startCamera()"
                             class="px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-2"
                             :class="mode === 'camera' ? 'bg-white text-maroon-800 shadow-sm' : 'text-gray-600 hover:text-gray-900'">
-                        <span>📷</span>
                         <span>Live Camera QR Scanner</span>
                     </button>
                 </div>
@@ -107,13 +104,13 @@
 
                     <div class="mt-3 flex items-center justify-between text-xs text-gray-500">
                         <span class="flex items-center gap-1 text-[11px]">
-                            <span class="text-maroon-700 font-bold">💡 Tip:</span>
+                            <span class="text-maroon-700 font-bold">Tip:</span>
                             Accepts Master Booking Reference (all seats) or single-seat QR token.
                         </span>
                         <button type="button" 
                                 @click="pasteClipboard()" 
                                 class="text-[11px] font-bold text-maroon-700 hover:underline flex items-center gap-1">
-                            <span>📋 Paste</span>
+                            <span>Paste</span>
                         </button>
                     </div>
                 </div>
@@ -123,7 +120,6 @@
                     <div class="relative bg-gray-900 rounded-2xl overflow-hidden min-h-[260px] flex items-center justify-center border-2 border-maroon-700">
                         <div id="qr-reader" class="w-full"></div>
                         <div x-show="!cameraActive" class="text-center p-6 text-white">
-                            <span class="text-3xl block mb-2">📷</span>
                             <p class="font-bold text-sm">Camera Offline</p>
                             <p class="text-xs text-gray-400 mt-1">Click the button below to start gate camera</p>
                         </div>
@@ -133,7 +129,7 @@
                         <button type="button" 
                                 @click="toggleCamera()" 
                                 class="px-4 py-2 bg-maroon-700 hover:bg-maroon-800 text-white font-bold text-xs rounded-xl transition shadow">
-                            <span x-text="cameraActive ? '⏹ Stop Camera' : '▶ Start Camera Scanner'"></span>
+                            <span x-text="cameraActive ? 'Stop Camera' : 'Start Camera Scanner'"></span>
                         </button>
                     </div>
                 </div>
@@ -141,11 +137,11 @@
                 <!-- Gate Marshal Guidelines -->
                 <div class="mt-8 pt-6 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-gray-600">
                     <div class="p-3 bg-gray-50 rounded-xl border border-gray-200">
-                        <span class="font-bold text-gray-900 block mb-0.5">🎫 Verification Options</span>
+                        <span class="font-bold text-gray-900 block mb-0.5">Verification Options</span>
                         <span>Marshals can scan the QR code or directly type/paste the 6-character booking reference code.</span>
                     </div>
                     <div class="p-3 bg-gray-50 rounded-xl border border-gray-200">
-                        <span class="font-bold text-gray-900 block mb-0.5">🛑 Double-Entry Protection</span>
+                        <span class="font-bold text-gray-900 block mb-0.5">Double-Entry Protection</span>
                         <span>Already checked-in passes will trigger an amber alert to prevent pass sharing.</span>
                     </div>
                 </div>
@@ -163,7 +159,6 @@
                                     @click="tokenInput = '{{ $b->booking_reference }}'; submitToken()"
                                     class="px-2.5 py-1 bg-gray-100 hover:bg-maroon-50 hover:text-maroon-700 hover:border-maroon-300 text-gray-700 rounded-lg text-[11px] font-mono font-bold border border-gray-200 transition flex items-center gap-1.5"
                                     title="Student: {{ $b->user?->name }} ({{ $b->total_seats }} seats)">
-                                <span>🎟️</span>
                                 <span>{{ $b->booking_reference }}</span>
                                 <span class="text-[10px] text-gray-400 font-sans font-normal">({{ $b->total_seats }} seats)</span>
                             </button>
@@ -199,8 +194,8 @@
                     <!-- Idle / Waiting State -->
                     <template x-if="!result && !loading">
                         <div class="py-12 text-center text-gray-400">
-                            <div class="w-16 h-16 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mx-auto mb-3 text-2xl">
-                                🔍
+                            <div class="w-16 h-16 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center mx-auto mb-3 text-xs font-black">
+                                SCAN
                             </div>
                             <h4 class="font-bold text-gray-700 text-sm">Ready to Verify Pass</h4>
                             <p class="text-xs text-gray-400 mt-1 max-w-xs mx-auto">
@@ -235,7 +230,7 @@
                                              'bg-amber-200 text-amber-900': result.status === 'warning',
                                              'bg-red-200 text-red-900': result.status === 'error'
                                          }">
-                                        <span x-text="result.status === 'success' ? '✓' : (result.status === 'warning' ? '⚠️' : '✕')"></span>
+                                        <span x-text="result.status === 'success' ? '✓' : (result.status === 'warning' ? '!' : '✕')"></span>
                                     </div>
 
                                     <div>
@@ -336,7 +331,6 @@
     <div class="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-sm" x-show="history.length > 0" x-cloak>
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-sm font-black text-gray-900 flex items-center gap-2">
-                <span>📋</span>
                 <span>Recent Gate Admissions (This Session)</span>
             </h3>
             <button type="button" @click="history = []" class="text-xs text-gray-400 hover:text-gray-600 font-bold">
@@ -365,7 +359,7 @@
                             <td class="py-2.5 px-3">
                                 <span class="px-2 py-0.5 rounded-full font-bold text-[10px]"
                                       :class="item.status === 'success' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'"
-                                      x-text="item.status === 'success' ? '✅ Admitted' : '⚠️ Already Admitted'">
+                                      x-text="item.status === 'success' ? 'Admitted' : 'Already Admitted'">
                                 </span>
                             </td>
                         </tr>
