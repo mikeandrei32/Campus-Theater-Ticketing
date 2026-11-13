@@ -2,12 +2,12 @@
 
 An interactive, authentic cinema-style theater booking application designed for **Manuel S. Enverga University Foundation (MSEUF)** collegiate stage events, pageants, and drama festivals (e.g., *Hiyas ng Enverga 2026: Coronation Night*, *CCMS Drama Fest*, and *Enverga University Cultural Night*).
 
-🎨 **Theme**: Authentic **MSEUF Maroon & White** (`#800000` & `#FFFFFF`) with VIP Gold (`#D97706`).  
-🏗️ **Design Pattern**: Pure Classic Laravel **Model-View-Controller (MVC)** with React Native Mobile Client.
+**Theme**: Authentic **MSEUF Maroon & White** (`#800000` & `#FFFFFF`) with VIP Gold (`#D97706`).  
+**Design Pattern**: Pure Classic Laravel **Model-View-Controller (MVC)** with React Native Mobile Client.
 
 ---
 
-## 📌 Project Architecture (Pure MVC Backend + Web & Mobile Frontends)
+## Project Architecture (Pure MVC Backend + Web & Mobile Frontends)
 
 ```text
 app/
@@ -56,7 +56,8 @@ mobile/                       # [V] Mobile Presentation (React Native / Expo)
            ├── services/api.js             (Laravel MVC API client with Bearer Auth)
            ├── components/Header.js        (University collegiate header, crest & user menu)
            └── screens/
-                ├── AuthScreen.js          (Mobile Login & Student Signup screen)
+                ├── LoginScreen.js         (Mobile Sign In screen)
+                ├── RegisterScreen.js      (Mobile Student Registration screen)
                 ├── EventsCatalogScreen.js (Campus shows catalog & status)
                 ├── SeatPickerScreen.js    (Interactive 60-seat cinema grid)
                 ├── CheckoutModal.js       (Reservation & attendee drawer)
@@ -65,21 +66,21 @@ mobile/                       # [V] Mobile Presentation (React Native / Expo)
 
 ---
 
-## 📌 Project Features
+## Project Features
 
 | Feature Area | Description | Status |
 |---|---|---|
-| **Authentication (Web & Mobile)** | **Login, Signup, Show/Hide Password, Remember Me, Rate Limiting, Password Recovery & Logout** | ✅ **Active** |
-| **Event Catalog & Publisher** | **Event Catalog, Search/Filter & Admin Show Publisher (Web & Mobile)** | ✅ **Active** |
-| **Interactive Seat Picker** | **Interactive Cinema Seat-Picker Grid (60 Auditorium Chairs, Rows A-F)** | ✅ **Active** |
-| **Tiered Pricing & Dock** | **Curved Screen Indicator, VIP/Regular Tiers, 4-Seat Limit & Dynamic Order Dock** | ✅ **Active** |
-| **Checkout & GCash Reference** | **Database Transaction Checkout, Seat Collision Lock & GCash Payment Reference** | ✅ **Active** |
-| **Digital QR Ticket Stub** | **Scannable QR Ticket Stub Generation & Printout** | ✅ **Active** |
-| **Gate Marshal Scanner** | **Gatekeeper / Usher QR & Reference Scanner with Double-Entry Protection** | ✅ **Active** |
+| **Authentication (Web & Mobile)** | **Login, Signup, Show/Hide Password, Remember Me, Rate Limiting, Password Recovery & Logout** | **Active** |
+| **Event Catalog & Publisher** | **Event Catalog, Search/Filter & Admin Show Publisher (Web & Mobile)** | **Active** |
+| **Interactive Seat Picker** | **Interactive Cinema Seat-Picker Grid (60 Auditorium Chairs, Rows A-F)** | **Active** |
+| **Tiered Pricing & Dock** | **Curved Screen Indicator, VIP/Regular Tiers, 4-Seat Limit & Dynamic Order Dock** | **Active** |
+| **Checkout & GCash Reference** | **Database Transaction Checkout, Seat Collision Lock & GCash Payment Reference** | **Active** |
+| **Digital QR Ticket Stub** | **Scannable QR Ticket Stub Generation & Printout** | **Active** |
+| **Gate Marshal Scanner** | **Gatekeeper / Usher QR & Reference Scanner with Double-Entry Protection** | **Active** |
 
 ---
 
-## 🔐 Demo Credentials
+## Demo Credentials
 
 After running `php artisan migrate:fresh --seed` (or `php artisan db:seed`), the following accounts are available:
 
@@ -92,7 +93,7 @@ After running `php artisan migrate:fresh --seed` (or `php artisan db:seed`), the
 
 ---
 
-## 🗄️ Database Architecture
+## Database Architecture
 
 - `users`: `name`, `email` (unique), `role` (`student` / `admin`), `student_number`, `password` (bcrypt hashed), `api_token`, `remember_token`.
 - `events`: `title`, `venue`, `show_date`, `pricing_type` (free/paid), `regular_price`, `vip_price`, `banner_image`.
@@ -102,7 +103,7 @@ After running `php artisan migrate:fresh --seed` (or `php artisan db:seed`), the
 
 ---
 
-## 🚀 Running the Project
+## Running the Project
 
 ### 1. Setup & Seed
 ```bash

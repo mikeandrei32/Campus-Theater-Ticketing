@@ -2,21 +2,21 @@
 
 Authentic mobile client for the **MSEUF Cinema-Style Theater Ticketing System**, scoped strictly to the **40% Midterm Checkpoint**.
 
-## 🎨 Theme & University Branding
+## Theme & University Branding
 - **Primary Color**: MSEUF Enverga Maroon (`#800000`) & White (`#FFFFFF`)
 - **VIP Tier Accent**: Gold / Amber (`#D97706` / `#F59E0B`)
 - **Framework**: React Native with Expo SDK 57.0.0 (runs on Android, iOS, and Web)
 
 ---
 
-## 🏗️ Architecture: Classic MVC (Separation of Concerns)
+## Architecture: Classic MVC (Separation of Concerns)
 - **Model**: Eloquent Models (`Event`, `Seat`, `Booking`, `TicketSeat`) in Laravel backend
 - **View**: React Native Mobile Screens & Components (Cross-Platform UI)
 - **Controller**: Laravel MVC Controllers (`EventApiController`, `SeatBookingApiController`)
 
 ---
 
-## 📌 Midterm (40% Scope) Features Included
+## Midterm (40% Scope) Features Included
 1. **Campus Shows Showcase (`EventsCatalogScreen.js`)**:
    - Live listing of collegiate events (Hiyas ng Enverga, CCMS Drama Fest, Cultural Night).
    - Real-time seat availability indicator.
@@ -37,7 +37,7 @@ Authentic mobile client for the **MSEUF Cinema-Style Theater Ticketing System**,
 
 ---
 
-## 🚀 How to Run Mobile Frontend
+## How to Run Mobile Frontend
 
 ### 1. Make Sure Laravel MVC Server is Running
 In the root directory (`Midterm-Project`):
@@ -53,7 +53,7 @@ npm start
 ```
 
 ### 3. Open on Your Device
-- **Physical Phone (Android/iPhone)**: Scan the QR code using the **Expo Go** app from the Google Play Store or Apple App Store. Ensure your phone is connected to the same Wi-Fi network as your computer. The app uses the Expo host address automatically; if needed, open the ⚙ settings and set the API URL to `http://<COMPUTER-WIFI-IP>:8000/api` (find the IPv4 address with `ipconfig` on Windows). You can verify connectivity by opening `http://<COMPUTER-WIFI-IP>:8000/api/events` in the phone's browser.
+- **Physical Phone (Android/iPhone)**: Scan the QR code using the **Expo Go** app from the Google Play Store or Apple App Store. Ensure your phone is connected to the same Wi-Fi network as your computer. The app uses the Expo host address automatically; if needed, open the API settings and set the API URL to `http://<COMPUTER-WIFI-IP>:8000/api` (find the IPv4 address with `ipconfig` on Windows). You can verify connectivity by opening `http://<COMPUTER-WIFI-IP>:8000/api/events` in the phone's browser.
 - **Android Emulator**: Press `a` in the terminal. The app uses Expo's detected host by default; if needed, open settings and select the Android Emulator preset (`http://10.0.2.2:8000/api`).
 - **iOS Simulator**: Press `i` in the terminal.
 - **Web Browser**: Press `w` in the terminal to preview in Chrome/Edge.

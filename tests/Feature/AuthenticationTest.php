@@ -2,12 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Mail\RegistrationVerificationMail;
 use App\Models\Event;
+use App\Models\PendingRegistration;
 use App\Models\Seat;
 use App\Models\TicketSeat;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -53,6 +56,9 @@ class AuthenticationTest extends TestCase
 
     public function test_user_can_register_with_valid_inputs(): void
     {
+        Mail::fake();
+
+        // Step 1: Submit registration form -> creates pending registration & sends verification email, does NOT create User yet
         $response = $this->post(route('register.submit'), [
             'name' => 'Gabriela Silang',
             'email' => 'Gabriela.Silang@mseuf.edu.ph',
@@ -61,14 +67,54 @@ class AuthenticationTest extends TestCase
             'password_confirmation' => 'SecurePass123!',
         ]);
 
-        $response->assertRedirect(route('admin.events.index'));
+        $response->assertRedirect(route('register.verify'));
+        $this->assertGuest();
+        $this->assertNull(User::where('email', 'gabriela.silang@mseuf.edu.ph')->first());
+
+        $pending = PendingRegistration::where('email', 'gabriela.silang@mseuf.edu.ph')->first();
+        $this->assertNotNull($pending);
+        $this->assertEquals('Gabriela Silang', $pending->name);
+        $this->assertEquals('A24-10293', $pending->student_number);
+
+        $sentCode = null;
+        Mail::assertSent(RegistrationVerificationMail::class, function (RegistrationVerificationMail $mail) use (&$sentCode) {
+            $sentCode = $mail->code;
+
+            return $mail->hasTo('gabriela.silang@mseuf.edu.ph');
+        });
+        $this->assertNotNull($sentCode);
+        $this->assertEquals(6, strlen($sentCode));
+
+        // Verification page renders properly
+        $verifyPage = $this->get(route('register.verify'));
+        $verifyPage->assertStatus(200);
+        $verifyPage->assertSee('gabriela.silang@mseuf.edu.ph');
+
+        // Rejects wrong verification code and still does not create the account
+        $wrongCodeResponse = $this->post(route('register.verify.submit'), [
+            'code' => '000000',
+        ]);
+        $wrongCodeResponse->assertSessionHasErrors('code');
+        $this->assertGuest();
+        $this->assertNull(User::where('email', 'gabriela.silang@mseuf.edu.ph')->first());
+
+        // Step 2: Submit valid 6-digit verification code -> creates User account, marks email verified, logs in
+        $verifyResponse = $this->post(route('register.verify.submit'), [
+            'code' => $sentCode,
+        ]);
+
+        $verifyResponse->assertRedirect(route('admin.events.index'));
         $this->assertAuthenticated();
+        $this->assertDatabaseMissing('pending_registrations', [
+            'email' => 'gabriela.silang@mseuf.edu.ph',
+        ]);
 
         $user = User::where('email', 'gabriela.silang@mseuf.edu.ph')->first();
         $this->assertNotNull($user);
         $this->assertEquals('Gabriela Silang', $user->name);
         $this->assertEquals('A24-10293', $user->student_number);
         $this->assertEquals('student', $user->role);
+        $this->assertNotNull($user->email_verified_at);
         $this->assertTrue(Hash::check('SecurePass123!', $user->password));
     }
 
@@ -100,6 +146,21 @@ class AuthenticationTest extends TestCase
 
     public function test_user_can_login_with_correct_credentials_and_remember_me(): void
     {
+        $admin = User::where('email', 'admin@mseuf.edu.ph')->first();
+        $this->assertNotNull($admin);
+        $this->assertTrue($admin->isAdmin());
+        $this->assertTrue($admin->canManageTheater());
+
+        $adminLogin = $this->post(route('login.submit'), [
+            'email' => 'admin@mseuf.edu.ph',
+            'password' => 'Password123!',
+            'remember' => '1',
+        ]);
+        $adminLogin->assertRedirect(route('admin.events.index'));
+        $this->assertAuthenticatedAs($admin);
+
+        $this->post(route('logout'));
+
         $user = User::where('email', 'student@mseuf.edu.ph')->first();
 
         $response = $this->post(route('login.submit'), [
@@ -212,7 +273,9 @@ class AuthenticationTest extends TestCase
 
     public function test_mobile_api_authentication_and_authenticated_booking(): void
     {
-        // 1. Register via API
+        Mail::fake();
+
+        // 1a. Initiate registration via API -> sends verification email, does not create user yet
         $regResponse = $this->postJson(route('api.auth.register'), [
             'name' => 'Mobile Envergan',
             'email' => 'mobile.user@mseuf.edu.ph',
@@ -221,11 +284,32 @@ class AuthenticationTest extends TestCase
             'password_confirmation' => 'MobilePass123',
         ]);
 
-        $regResponse->assertStatus(201)
+        $regResponse->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('requires_verification', true)
+            ->assertJsonPath('email', 'mobile.user@mseuf.edu.ph');
+
+        $this->assertNull(User::where('email', 'mobile.user@mseuf.edu.ph')->first());
+
+        $sentCode = null;
+        Mail::assertSent(RegistrationVerificationMail::class, function (RegistrationVerificationMail $mail) use (&$sentCode) {
+            $sentCode = $mail->code;
+
+            return $mail->hasTo('mobile.user@mseuf.edu.ph');
+        });
+        $this->assertNotNull($sentCode);
+
+        // 1b. Verify registration code via API -> creates user and returns Bearer token
+        $verifyResponse = $this->postJson(route('api.auth.verify'), [
+            'email' => 'mobile.user@mseuf.edu.ph',
+            'code' => $sentCode,
+        ]);
+
+        $verifyResponse->assertStatus(201)
             ->assertJsonPath('success', true)
             ->assertJsonPath('user.email', 'mobile.user@mseuf.edu.ph');
 
-        $token = $regResponse->json('token');
+        $token = $verifyResponse->json('token');
         $this->assertNotEmpty($token);
 
         // 2. Fetch /api/auth/me with Bearer token
@@ -254,7 +338,129 @@ class AuthenticationTest extends TestCase
 
         $this->assertDatabaseHas('users', [
             'email' => 'mobile.user@mseuf.edu.ph',
+            'registered_via' => 'mobile',
             'api_token' => null,
         ]);
+    }
+
+    public function test_mobile_account_can_only_login_on_mobile_and_web_account_can_only_login_on_web(): void
+    {
+        Mail::fake();
+
+        // 1. Create a Mobile account via Mobile API
+        $this->postJson(route('api.auth.register'), [
+            'name' => 'Mobile Only Student',
+            'email' => 'mobile.only@mseuf.edu.ph',
+            'student_number' => 'A26-11111',
+            'password' => 'MobilePass123!',
+            'password_confirmation' => 'MobilePass123!',
+        ])->assertStatus(200);
+
+        $mobileOtp = null;
+        Mail::assertSent(RegistrationVerificationMail::class, function (RegistrationVerificationMail $mail) use (&$mobileOtp) {
+            if ($mail->hasTo('mobile.only@mseuf.edu.ph')) {
+                $mobileOtp = $mail->code;
+
+                return true;
+            }
+
+            return false;
+        });
+
+        $this->postJson(route('api.auth.verify'), [
+            'email' => 'mobile.only@mseuf.edu.ph',
+            'code' => $mobileOtp,
+        ])->assertStatus(201);
+
+        // Mobile account CAN log in via Mobile API
+        $mobileLoginOnMobile = $this->postJson(route('api.auth.login'), [
+            'email' => 'mobile.only@mseuf.edu.ph',
+            'password' => 'MobilePass123!',
+        ]);
+        $mobileLoginOnMobile->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('user.registered_via', 'mobile');
+
+        // Mobile account CANNOT log in on the Website
+        $mobileLoginOnWeb = $this->post(route('login.submit'), [
+            'email' => 'mobile.only@mseuf.edu.ph',
+            'password' => 'MobilePass123!',
+        ]);
+        $mobileLoginOnWeb->assertSessionHasErrors('email');
+        $this->assertGuest();
+
+        // 2. Web account (e.g. seeded student@mseuf.edu.ph or newly registered on website) CANNOT log in via Mobile API
+        $webLoginOnMobile = $this->postJson(route('api.auth.login'), [
+            'email' => 'student@mseuf.edu.ph',
+            'password' => 'password',
+        ]);
+        $webLoginOnMobile->assertStatus(403)
+            ->assertJsonPath('success', false);
+
+        // Web account CAN log in on the Website
+        $webLoginOnWeb = $this->post(route('login.submit'), [
+            'email' => 'student@mseuf.edu.ph',
+            'password' => 'password',
+        ]);
+        $webLoginOnWeb->assertRedirect(route('admin.events.index'));
+        $this->assertAuthenticated();
+    }
+
+    public function test_student_domain_account_can_only_login_on_mobile_and_cannot_edit_like_admin(): void
+    {
+        Mail::fake();
+
+        // Register a @student.mseuf.edu.ph account (even if submitted from web registration form)
+        $this->post(route('register.submit'), [
+            'name' => 'Mike Andrei Gomez',
+            'email' => 'a23-36954@student.mseuf.edu.ph',
+            'student_number' => 'A23-36954',
+            'password' => 'StudentPass123!',
+            'password_confirmation' => 'StudentPass123!',
+        ])->assertRedirect(route('register.verify'));
+
+        $otp = null;
+        Mail::assertSent(RegistrationVerificationMail::class, function (RegistrationVerificationMail $mail) use (&$otp) {
+            if ($mail->hasTo('a23-36954@student.mseuf.edu.ph')) {
+                $otp = $mail->code;
+
+                return true;
+            }
+
+            return false;
+        });
+
+        // Verifying on web creates the user as mobile-only and does NOT log them into the website
+        $verifyRes = $this->post(route('register.verify.submit'), [
+            'code' => $otp,
+        ]);
+        $verifyRes->assertRedirect(route('login'));
+        $this->assertGuest();
+
+        $studentUser = User::where('email', 'a23-36954@student.mseuf.edu.ph')->first();
+        $this->assertNotNull($studentUser);
+        $this->assertTrue($studentUser->isMobileAccount());
+        $this->assertFalse($studentUser->canManageTheater());
+
+        // Cannot log in on the website
+        $this->post(route('login.submit'), [
+            'email' => 'a23-36954@student.mseuf.edu.ph',
+            'password' => 'StudentPass123!',
+        ])->assertSessionHasErrors('email');
+        $this->assertGuest();
+
+        // Cannot edit, create, or delete shows on the website even if actingAs session existed
+        $event = Event::first();
+        $this->actingAs($studentUser)
+            ->get(route('admin.events.edit', $event))
+            ->assertRedirect(route('login'));
+        $this->assertGuest();
+
+        // CAN log in through the mobile app API
+        $this->postJson(route('api.auth.login'), [
+            'email' => 'a23-36954@student.mseuf.edu.ph',
+            'password' => 'StudentPass123!',
+        ])->assertStatus(200)
+            ->assertJsonPath('success', true);
     }
 }
