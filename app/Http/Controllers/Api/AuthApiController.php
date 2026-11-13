@@ -44,7 +44,18 @@ class AuthApiController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'min:2', 'max:100'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'unique:users,email',
+                function (string $attribute, mixed $value, \Closure $fail) {
+                    if (! User::isStudentDomainEmail((string) $value)) {
+                        $fail('Mobile registration is restricted to MSEUF student emails ending in @student.mseuf.edu.ph.');
+                    }
+                },
+            ],
             'student_number' => ['nullable', 'string', 'max:30'],
             'password' => ['required', 'string', 'confirmed', Password::min(8)],
         ]);
@@ -99,6 +110,13 @@ class AuthApiController extends Controller
             'email' => ['required', 'string', 'email', 'max:255'],
             'code' => ['required', 'string', 'digits:6'],
         ]);
+
+        if (! User::isStudentDomainEmail($validated['email'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Mobile registration is restricted to MSEUF student emails ending in @student.mseuf.edu.ph.',
+            ], 422);
+        }
 
         $throttleKey = 'api-verify-register|'.$validated['email'].'|'.$request->ip();
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
