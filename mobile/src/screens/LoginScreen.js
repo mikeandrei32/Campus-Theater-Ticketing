@@ -89,7 +89,7 @@ export default function LoginScreen({ onAuthSuccess, onNavigateToRegister }) {
               style={styles.input}
               value={email}
               onChangeText={setEmail}
-              placeholder="student@mseuf.edu.ph"
+              placeholder="a23-00142@student.mseuf.edu.ph"
               placeholderTextColor={COLORS.textMuted}
               keyboardType="email-address"
               autoCapitalize="none"

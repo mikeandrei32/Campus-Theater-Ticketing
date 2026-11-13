@@ -48,8 +48,14 @@ export default function RegisterScreen({ onAuthSuccess, onNavigateToLogin }) {
       return;
     }
 
-    if (!email.trim() || !email.includes('@')) {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail || !normalizedEmail.includes('@')) {
       setError('Please enter a valid university email address.');
+      return;
+    }
+
+    if (!normalizedEmail.endsWith('@student.mseuf.edu.ph')) {
+      setError('Mobile registration is restricted to emails ending in @student.mseuf.edu.ph.');
       return;
     }
 
@@ -179,12 +185,12 @@ export default function RegisterScreen({ onAuthSuccess, onNavigateToLogin }) {
 
               {/* Email */}
               <View style={styles.fieldGroup}>
-                <Text style={styles.label}>UNIVERSITY EMAIL ADDRESS *</Text>
+                <Text style={styles.label}>STUDENT EMAIL ADDRESS (@student.mseuf.edu.ph) *</Text>
                 <TextInput
                   style={styles.input}
                   value={email}
                   onChangeText={setEmail}
-                  placeholder="juan@mseuf.edu.ph"
+                  placeholder="a23-00142@student.mseuf.edu.ph"
                   placeholderTextColor={COLORS.textMuted}
                   keyboardType="email-address"
                   autoCapitalize="none"
