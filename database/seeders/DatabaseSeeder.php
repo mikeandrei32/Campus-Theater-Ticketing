@@ -18,8 +18,10 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'MSEUF Theater Admin',
                 'role' => 'admin',
+                'registered_via' => 'web',
                 'student_number' => 'ADMIN-001',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('Password123!'),
+                'email_verified_at' => now(),
             ]
         );
 
@@ -28,6 +30,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Mike Enverga',
                 'role' => 'student',
+                'registered_via' => 'web',
                 'student_number' => 'A23-00142',
                 'password' => Hash::make('password'),
             ]
