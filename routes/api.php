@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     // 0. Authentication & Account Endpoints
     Route::post('/auth/register', [AuthApiController::class, 'register'])->name('api.v1.auth.register');
+    Route::post('/auth/verify-registration', [AuthApiController::class, 'verifyRegistration'])->name('api.v1.auth.verify');
+    Route::post('/auth/resend-verification', [AuthApiController::class, 'resendVerification'])->name('api.v1.auth.resend');
     Route::post('/auth/login', [AuthApiController::class, 'login'])->name('api.v1.auth.login');
     Route::get('/auth/me', [AuthApiController::class, 'me'])->name('api.v1.auth.me');
     Route::post('/auth/logout', [AuthApiController::class, 'logout'])->name('api.v1.auth.logout');
@@ -41,6 +43,8 @@ Route::prefix('v1')->group(function () {
 
 // Top-level /api/ alias routes for convenience
 Route::post('/auth/register', [AuthApiController::class, 'register'])->name('api.auth.register');
+Route::post('/auth/verify-registration', [AuthApiController::class, 'verifyRegistration'])->name('api.auth.verify');
+Route::post('/auth/resend-verification', [AuthApiController::class, 'resendVerification'])->name('api.auth.resend');
 Route::post('/auth/login', [AuthApiController::class, 'login'])->name('api.auth.login');
 Route::get('/auth/me', [AuthApiController::class, 'me'])->name('api.auth.me');
 Route::post('/auth/logout', [AuthApiController::class, 'logout'])->name('api.auth.logout');

@@ -8,9 +8,31 @@ use App\Models\Event;
 use App\Models\Seat;
 use App\Models\TicketSeat;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
+    /**
+     * Block @student.mseuf.edu.ph and mobile-only accounts from accessing or editing admin features on the website.
+     */
+    protected function rejectMobileOrStudentDomainUser(Request $request)
+    {
+        $user = Auth::user();
+        if ($user && ! $user->canManageTheater()) {
+            Auth::guard('web')->logout();
+            if ($request->hasSession()) {
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+            }
+
+            return redirect()
+                ->route('login')
+                ->with('error', 'Accounts using @student.mseuf.edu.ph can only log in through the mobile app and cannot edit or manage shows on the website.');
+        }
+
+        return null;
+    }
+
     /**
      * =========================================================================
      * 1. ADMIN DASHBOARD / SHOWS CATALOG
@@ -20,6 +42,10 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
+        if ($redirect = $this->rejectMobileOrStudentDomainUser($request)) {
+            return $redirect;
+        }
+
         // Fetch all events with the count of booked seats
         $query = Event::withCount(['ticketSeats as booked_seats_count'])
             ->withCount('bookings')
@@ -70,8 +96,12 @@ class EventController extends Controller
      * =========================================================================
      * Displays the form to post a new play or cinema movie for students to watch.
      */
-    public function create()
+    public function create(Request $request)
     {
+        if ($redirect = $this->rejectMobileOrStudentDomainUser($request)) {
+            return $redirect;
+        }
+
         // Preset venues for quick selection
         $presetVenues = [
             'MSEUF University Gymnasium & Cultural Center',
@@ -121,6 +151,10 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
+        if ($redirect = $this->rejectMobileOrStudentDomainUser($request)) {
+            return $redirect;
+        }
+
         // 1. Validate incoming form inputs
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -159,7 +193,7 @@ class EventController extends Controller
         // 5. Redirect to the newly created event details with a friendly flash message
         return redirect()
             ->route('admin.events.show', $event->id)
-            ->with('success', "🎉 '{$event->title}' has been successfully posted! Students can now view and book it on the mobile app.");
+            ->with('success', "'{$event->title}' has been successfully posted! Students can now view and book it on the mobile app.");
     }
 
     /**
@@ -168,8 +202,12 @@ class EventController extends Controller
      * =========================================================================
      * Allows the Admin to monitor real-time seat occupancy and student bookings.
      */
-    public function show(Event $event)
+    public function show(Request $request, Event $event)
     {
+        if ($redirect = $this->rejectMobileOrStudentDomainUser($request)) {
+            return $redirect;
+        }
+
         // Fetch all 60 auditorium seats ordered by row (A-F) and seat number (1-10)
         $allSeats = Seat::orderBy('row_label')->orderBy('seat_number')->get();
 
@@ -226,8 +264,12 @@ class EventController extends Controller
      * =========================================================================
      * Displays form pre-filled with existing data to modify a play or cine show.
      */
-    public function edit(Event $event)
+    public function edit(Request $request, Event $event)
     {
+        if ($redirect = $this->rejectMobileOrStudentDomainUser($request)) {
+            return $redirect;
+        }
+
         $presetVenues = [
             'MSEUF University Gymnasium & Cultural Center',
             'Little Theater, AEC Building',
@@ -274,6 +316,10 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event)
     {
+        if ($redirect = $this->rejectMobileOrStudentDomainUser($request)) {
+            return $redirect;
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'venue' => 'nullable|string|max:255',
@@ -295,7 +341,7 @@ class EventController extends Controller
 
         return redirect()
             ->route('admin.events.show', $event->id)
-            ->with('success', "✅ Show details for '{$event->title}' were updated successfully!");
+            ->with('success', "Show details for '{$event->title}' were updated successfully!");
     }
 
     /**
@@ -304,13 +350,17 @@ class EventController extends Controller
      * =========================================================================
      * Removes a show and its associated reservations from the database.
      */
-    public function destroy(Event $event)
+    public function destroy(Request $request, Event $event)
     {
+        if ($redirect = $this->rejectMobileOrStudentDomainUser($request)) {
+            return $redirect;
+        }
+
         $title = $event->title;
         $event->delete();
 
         return redirect()
             ->route('admin.events.index')
-            ->with('success', "🗑️ '{$title}' has been removed from the schedule.");
+            ->with('success', "'{$title}' has been removed from the schedule.");
     }
 }

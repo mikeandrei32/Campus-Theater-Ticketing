@@ -76,7 +76,7 @@ class SeatBookingApiController extends Controller
         ];
 
         if ($event->pricing_type === 'paid') {
-            $rules['gcash_reference'] = 'required|string|min:6|max:30';
+            $rules['gcash_reference'] = 'nullable|string|min:6|max:30';
         }
 
         $validated = $request->validate($rules);

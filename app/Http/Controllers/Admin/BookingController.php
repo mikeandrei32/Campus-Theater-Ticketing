@@ -6,9 +6,28 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
+    protected function rejectMobileOrStudentDomainUser(Request $request)
+    {
+        $user = Auth::user();
+        if ($user && ! $user->canManageTheater()) {
+            Auth::guard('web')->logout();
+            if ($request->hasSession()) {
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+            }
+
+            return redirect()
+                ->route('login')
+                ->with('error', 'Accounts using @student.mseuf.edu.ph can only log in through the mobile app and cannot manage reservations on the website.');
+        }
+
+        return null;
+    }
+
     /**
      * =========================================================================
      * ALL STUDENT BOOKINGS / RESERVATIONS
@@ -17,6 +36,10 @@ class BookingController extends Controller
      */
     public function index(Request $request)
     {
+        if ($redirect = $this->rejectMobileOrStudentDomainUser($request)) {
+            return $redirect;
+        }
+
         $query = Booking::with(['event', 'user', 'tickets.seat'])
             ->latest();
 
@@ -66,8 +89,12 @@ class BookingController extends Controller
      * =========================================================================
      * Allows Admin to cancel a student reservation (frees up the seats).
      */
-    public function destroy(Booking $booking)
+    public function destroy(Request $request, Booking $booking)
     {
+        if ($redirect = $this->rejectMobileOrStudentDomainUser($request)) {
+            return $redirect;
+        }
+
         $ref = $booking->booking_reference;
         $booking->delete(); // Cascades and deletes TicketSeat entries, freeing up seats
 

@@ -25,11 +25,14 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 
-    // Register / Create Account Page (Dedicated Separate Page)
+    // Register / Create Account Page (Dedicated Separate Page + Pre-Account Email Verification)
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
     Route::get('/signup', [AuthController::class, 'showRegister'])->name('signup');
     Route::post('/signup', [AuthController::class, 'register'])->name('signup.submit');
+    Route::get('/register/verify', [AuthController::class, 'showVerifyRegistration'])->name('register.verify');
+    Route::post('/register/verify', [AuthController::class, 'verifyRegistration'])->name('register.verify.submit');
+    Route::post('/register/resend', [AuthController::class, 'resendVerificationCode'])->name('register.resend');
 
     // Forgot & Reset Password Pages
     Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
