@@ -275,10 +275,21 @@ class AuthenticationTest extends TestCase
     {
         Mail::fake();
 
+        // 0. Non-@student.mseuf.edu.ph emails are rejected on mobile registration
+        $invalidDomainResponse = $this->postJson(route('api.auth.register'), [
+            'name' => 'Non Student Domain',
+            'email' => 'faculty.user@mseuf.edu.ph',
+            'student_number' => 'A25-00998',
+            'password' => 'MobilePass123',
+            'password_confirmation' => 'MobilePass123',
+        ]);
+        $invalidDomainResponse->assertStatus(422)
+            ->assertJsonValidationErrors('email');
+
         // 1a. Initiate registration via API -> sends verification email, does not create user yet
         $regResponse = $this->postJson(route('api.auth.register'), [
             'name' => 'Mobile Envergan',
-            'email' => 'mobile.user@mseuf.edu.ph',
+            'email' => 'mobile.user@student.mseuf.edu.ph',
             'student_number' => 'A25-00999',
             'password' => 'MobilePass123',
             'password_confirmation' => 'MobilePass123',
@@ -287,27 +298,27 @@ class AuthenticationTest extends TestCase
         $regResponse->assertStatus(200)
             ->assertJsonPath('success', true)
             ->assertJsonPath('requires_verification', true)
-            ->assertJsonPath('email', 'mobile.user@mseuf.edu.ph');
+            ->assertJsonPath('email', 'mobile.user@student.mseuf.edu.ph');
 
-        $this->assertNull(User::where('email', 'mobile.user@mseuf.edu.ph')->first());
+        $this->assertNull(User::where('email', 'mobile.user@student.mseuf.edu.ph')->first());
 
         $sentCode = null;
         Mail::assertSent(RegistrationVerificationMail::class, function (RegistrationVerificationMail $mail) use (&$sentCode) {
             $sentCode = $mail->code;
 
-            return $mail->hasTo('mobile.user@mseuf.edu.ph');
+            return $mail->hasTo('mobile.user@student.mseuf.edu.ph');
         });
         $this->assertNotNull($sentCode);
 
         // 1b. Verify registration code via API -> creates user and returns Bearer token
         $verifyResponse = $this->postJson(route('api.auth.verify'), [
-            'email' => 'mobile.user@mseuf.edu.ph',
+            'email' => 'mobile.user@student.mseuf.edu.ph',
             'code' => $sentCode,
         ]);
 
         $verifyResponse->assertStatus(201)
             ->assertJsonPath('success', true)
-            ->assertJsonPath('user.email', 'mobile.user@mseuf.edu.ph');
+            ->assertJsonPath('user.email', 'mobile.user@student.mseuf.edu.ph');
 
         $token = $verifyResponse->json('token');
         $this->assertNotEmpty($token);
@@ -329,7 +340,7 @@ class AuthenticationTest extends TestCase
             ]);
 
         $bookResponse->assertStatus(201)
-            ->assertJsonPath('booking.attendee_email', 'mobile.user@mseuf.edu.ph');
+            ->assertJsonPath('booking.attendee_email', 'mobile.user@student.mseuf.edu.ph');
 
         // 4. Logout via API invalidates token
         $this->withHeader('Authorization', 'Bearer '.$token)
@@ -337,7 +348,7 @@ class AuthenticationTest extends TestCase
             ->assertStatus(200);
 
         $this->assertDatabaseHas('users', [
-            'email' => 'mobile.user@mseuf.edu.ph',
+            'email' => 'mobile.user@student.mseuf.edu.ph',
             'registered_via' => 'mobile',
             'api_token' => null,
         ]);
@@ -350,7 +361,7 @@ class AuthenticationTest extends TestCase
         // 1. Create a Mobile account via Mobile API
         $this->postJson(route('api.auth.register'), [
             'name' => 'Mobile Only Student',
-            'email' => 'mobile.only@mseuf.edu.ph',
+            'email' => 'mobile.only@student.mseuf.edu.ph',
             'student_number' => 'A26-11111',
             'password' => 'MobilePass123!',
             'password_confirmation' => 'MobilePass123!',
@@ -358,7 +369,7 @@ class AuthenticationTest extends TestCase
 
         $mobileOtp = null;
         Mail::assertSent(RegistrationVerificationMail::class, function (RegistrationVerificationMail $mail) use (&$mobileOtp) {
-            if ($mail->hasTo('mobile.only@mseuf.edu.ph')) {
+            if ($mail->hasTo('mobile.only@student.mseuf.edu.ph')) {
                 $mobileOtp = $mail->code;
 
                 return true;
@@ -368,13 +379,13 @@ class AuthenticationTest extends TestCase
         });
 
         $this->postJson(route('api.auth.verify'), [
-            'email' => 'mobile.only@mseuf.edu.ph',
+            'email' => 'mobile.only@student.mseuf.edu.ph',
             'code' => $mobileOtp,
         ])->assertStatus(201);
 
         // Mobile account CAN log in via Mobile API
         $mobileLoginOnMobile = $this->postJson(route('api.auth.login'), [
-            'email' => 'mobile.only@mseuf.edu.ph',
+            'email' => 'mobile.only@student.mseuf.edu.ph',
             'password' => 'MobilePass123!',
         ]);
         $mobileLoginOnMobile->assertStatus(200)
@@ -383,7 +394,7 @@ class AuthenticationTest extends TestCase
 
         // Mobile account CANNOT log in on the Website
         $mobileLoginOnWeb = $this->post(route('login.submit'), [
-            'email' => 'mobile.only@mseuf.edu.ph',
+            'email' => 'mobile.only@student.mseuf.edu.ph',
             'password' => 'MobilePass123!',
         ]);
         $mobileLoginOnWeb->assertSessionHasErrors('email');
