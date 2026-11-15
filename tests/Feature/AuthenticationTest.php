@@ -275,16 +275,18 @@ class AuthenticationTest extends TestCase
     {
         Mail::fake();
 
-        // 0. Non-@student.mseuf.edu.ph emails are rejected on mobile registration
-        $invalidDomainResponse = $this->postJson(route('api.auth.register'), [
-            'name' => 'Non Student Domain',
-            'email' => 'faculty.user@mseuf.edu.ph',
+        // 0. Any valid email domain (e.g. @outlook.com, @mseuf.edu.ph, @student.mseuf.edu.ph) is accepted on mobile registration
+        $anyDomainResponse = $this->postJson(route('api.auth.register'), [
+            'name' => 'Outlook Attendee',
+            'email' => 'attendee.user@outlook.com',
             'student_number' => 'A25-00998',
             'password' => 'MobilePass123',
             'password_confirmation' => 'MobilePass123',
         ]);
-        $invalidDomainResponse->assertStatus(422)
-            ->assertJsonValidationErrors('email');
+        $anyDomainResponse->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('requires_verification', true)
+            ->assertJsonPath('email', 'attendee.user@outlook.com');
 
         // 1a. Initiate registration via API -> sends verification email, does not create user yet
         $regResponse = $this->postJson(route('api.auth.register'), [

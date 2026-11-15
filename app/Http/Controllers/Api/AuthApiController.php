@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -50,11 +51,6 @@ class AuthApiController extends Controller
                 'email',
                 'max:255',
                 'unique:users,email',
-                function (string $attribute, mixed $value, \Closure $fail) {
-                    if (! User::isStudentDomainEmail((string) $value)) {
-                        $fail('Mobile registration is restricted to MSEUF student emails ending in @student.mseuf.edu.ph.');
-                    }
-                },
             ],
             'student_number' => ['nullable', 'string', 'max:30'],
             'password' => ['required', 'string', 'confirmed', Password::min(8)],
@@ -76,11 +72,20 @@ class AuthApiController extends Controller
             ]
         );
 
-        Mail::to($validated['email'])->send(new RegistrationVerificationMail(
-            recipientName: $validated['name'],
-            code: $plainCode,
-            expiresInMinutes: 15
-        ));
+        try {
+            Mail::to($validated['email'])->send(new RegistrationVerificationMail(
+                recipientName: $validated['name'],
+                code: $plainCode,
+                expiresInMinutes: 15
+            ));
+        } catch (\Throwable $e) {
+            Log::error('Failed to send API registration verification email: '.$e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to send verification email to '.$validated['email'].'. Please ensure MAIL_USERNAME and MAIL_PASSWORD are configured in your .env file for SMTP delivery.',
+            ], 500);
+        }
 
         $payload = [
             'success' => true,
@@ -110,13 +115,6 @@ class AuthApiController extends Controller
             'email' => ['required', 'string', 'email', 'max:255'],
             'code' => ['required', 'string', 'digits:6'],
         ]);
-
-        if (! User::isStudentDomainEmail($validated['email'])) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Mobile registration is restricted to MSEUF student emails ending in @student.mseuf.edu.ph.',
-            ], 422);
-        }
 
         $throttleKey = 'api-verify-register|'.$validated['email'].'|'.$request->ip();
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
@@ -235,11 +233,20 @@ class AuthApiController extends Controller
             'expires_at' => Carbon::now()->addMinutes(15),
         ]);
 
-        Mail::to($pending->email)->send(new RegistrationVerificationMail(
-            recipientName: $pending->name,
-            code: $plainCode,
-            expiresInMinutes: 15
-        ));
+        try {
+            Mail::to($pending->email)->send(new RegistrationVerificationMail(
+                recipientName: $pending->name,
+                code: $plainCode,
+                expiresInMinutes: 15
+            ));
+        } catch (\Throwable $e) {
+            Log::error('Failed to resend API registration verification email: '.$e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to resend verification email to '.$pending->email.'. Please verify your SMTP MAIL_USERNAME and MAIL_PASSWORD settings in .env.',
+            ], 500);
+        }
 
         $payload = [
             'success' => true,
@@ -281,7 +288,7 @@ class AuthApiController extends Controller
 
         $user = User::where('email', $validated['email'])->first();
 
-        if ($user && $user->isWebAccount()) {
+        if ($user && $user->isWebAccount() && $user->role !== 'admin') {
             RateLimiter::hit($throttleKey, 60);
 
             return response()->json([
@@ -397,14 +404,14 @@ class AuthApiController extends Controller
         if ($bearer) {
             $hashed = hash('sha256', $bearer);
             $user = User::where('api_token', $hashed)->first();
-            if ($user && $user->isMobileAccount()) {
+            if ($user && ($user->isMobileAccount() || $user->role === 'admin')) {
                 return $user;
             }
         }
 
         $sessionUser = auth()->user();
 
-        return ($sessionUser && $sessionUser->isMobileAccount()) ? $sessionUser : null;
+        return ($sessionUser && ($sessionUser->isMobileAccount() || $sessionUser->role === 'admin')) ? $sessionUser : null;
     }
 
     protected function formatUser(User $user): array
@@ -414,6 +421,8 @@ class AuthApiController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'role' => $user->role ?? 'student',
+            'is_admin' => $user->role === 'admin',
+            'can_manage_theater' => $user->role === 'admin' || $user->canManageTheater(),
             'registered_via' => $user->registered_via ?? 'mobile',
             'student_number' => $user->student_number,
         ];

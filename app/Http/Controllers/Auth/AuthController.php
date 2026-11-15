@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -152,11 +153,19 @@ class AuthController extends Controller
             ]
         );
 
-        Mail::to($validated['email'])->send(new RegistrationVerificationMail(
-            recipientName: $validated['name'],
-            code: $plainCode,
-            expiresInMinutes: 15
-        ));
+        try {
+            Mail::to($validated['email'])->send(new RegistrationVerificationMail(
+                recipientName: $validated['name'],
+                code: $plainCode,
+                expiresInMinutes: 15
+            ));
+        } catch (\Throwable $e) {
+            Log::error('Failed to send registration verification email: '.$e->getMessage());
+
+            throw ValidationException::withMessages([
+                'email' => 'Unable to send verification email to '.$validated['email'].'. Please ensure MAIL_USERNAME and MAIL_PASSWORD are configured in your .env file for SMTP delivery.',
+            ]);
+        }
 
         $request->session()->put('pending_registration_email', $validated['email']);
 
@@ -332,11 +341,19 @@ class AuthController extends Controller
             'expires_at' => Carbon::now()->addMinutes(15),
         ]);
 
-        Mail::to($pending->email)->send(new RegistrationVerificationMail(
-            recipientName: $pending->name,
-            code: $plainCode,
-            expiresInMinutes: 15
-        ));
+        try {
+            Mail::to($pending->email)->send(new RegistrationVerificationMail(
+                recipientName: $pending->name,
+                code: $plainCode,
+                expiresInMinutes: 15
+            ));
+        } catch (\Throwable $e) {
+            Log::error('Failed to resend registration verification email: '.$e->getMessage());
+
+            throw ValidationException::withMessages([
+                'code' => 'Unable to resend verification email to '.$pending->email.'. Please verify your SMTP MAIL_USERNAME and MAIL_PASSWORD settings in .env.',
+            ]);
+        }
 
         $request->session()->put('pending_registration_email', $pending->email);
 

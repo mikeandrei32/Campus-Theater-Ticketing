@@ -6,13 +6,25 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow MSEUF Theater Pass to use the camera to scan student ticket QR codes at the gate."
+      }
     },
     "android": {
-      "package": "edu.ph.mseuf.theater"
+      "package": "edu.ph.mseuf.theater",
+      "permissions": [
+        "CAMERA"
+      ]
     },
     "plugins": [
-      "expo-status-bar"
+      "expo-status-bar",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow MSEUF Theater Pass to access your camera to scan ticket QR codes."
+        }
+      ]
     ]
   }
 }

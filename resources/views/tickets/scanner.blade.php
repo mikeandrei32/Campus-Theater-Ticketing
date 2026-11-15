@@ -383,6 +383,8 @@ function scannerComponent() {
         result: null,
         cameraActive: false,
         html5QrCode: null,
+        scanLocked: false,
+        lastScannedToken: null,
         history: [],
         stats: {
             admitted: {{ $stats['total_admitted'] ?? 0 }},
@@ -452,6 +454,11 @@ function scannerComponent() {
         resetResult() {
             this.result = null;
             this.tokenInput = '';
+            this.scanLocked = false;
+            this.lastScannedToken = null;
+            if (this.html5QrCode && this.cameraActive) {
+                try { this.html5QrCode.resume(); } catch (e) {}
+            }
             if (this.$refs.scannerInput) {
                 this.$refs.scannerInput.focus();
             }
@@ -490,8 +497,14 @@ function scannerComponent() {
                         qrbox: { width: 250, height: 250 }
                     },
                     (decodedText) => {
-                        console.log("Scanned text:", decodedText);
-                        this.tokenInput = decodedText;
+                        const cleaned = (decodedText || '').trim();
+                        if (!cleaned || this.scanLocked || this.loading || cleaned === this.lastScannedToken) {
+                            return;
+                        }
+                        this.scanLocked = true;
+                        this.lastScannedToken = cleaned;
+                        try { this.html5QrCode.pause(true); } catch (e) {}
+                        this.tokenInput = cleaned;
                         this.submitToken();
                     },
                     (errorMessage) => {

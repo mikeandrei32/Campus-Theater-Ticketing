@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AdminApiController;
 use App\Http\Controllers\Api\AuthApiController;
 use App\Http\Controllers\Api\EventApiController;
 use App\Http\Controllers\Api\SeatBookingApiController;
@@ -39,6 +40,18 @@ Route::prefix('v1')->group(function () {
 
     // 4. Ticket & Booking Reference Gate Scanner Validation
     Route::post('/validate-ticket', [CheckInController::class, 'validateTicket'])->name('api.v1.validate');
+
+    // 5. Admin Portal Endpoints (Shows CRUD, Live Seat Map, Reservations, Scanner)
+    Route::prefix('admin')->name('api.v1.admin.')->group(function () {
+        Route::get('/dashboard', [AdminApiController::class, 'dashboard'])->name('dashboard');
+        Route::post('/events', [AdminApiController::class, 'storeEvent'])->name('events.store');
+        Route::get('/events/{event}', [AdminApiController::class, 'showEvent'])->name('events.show');
+        Route::put('/events/{event}', [AdminApiController::class, 'updateEvent'])->name('events.update');
+        Route::delete('/events/{event}', [AdminApiController::class, 'destroyEvent'])->name('events.destroy');
+        Route::get('/bookings', [AdminApiController::class, 'bookings'])->name('bookings.index');
+        Route::delete('/bookings/{booking}', [AdminApiController::class, 'destroyBooking'])->name('bookings.destroy');
+        Route::get('/scanner', [AdminApiController::class, 'scanner'])->name('scanner');
+    });
 });
 
 // Top-level /api/ alias routes for convenience
@@ -56,3 +69,14 @@ Route::get('/events/{event}/seats', [SeatBookingApiController::class, 'seats'])-
 Route::post('/events/{event}/book', [SeatBookingApiController::class, 'book'])->name('api.events.book');
 Route::get('/bookings/{booking}', [SeatBookingApiController::class, 'show'])->name('api.bookings.show');
 Route::post('/validate-ticket', [CheckInController::class, 'validateTicket'])->name('api.validate');
+
+Route::prefix('admin')->name('api.admin.')->group(function () {
+    Route::get('/dashboard', [AdminApiController::class, 'dashboard'])->name('dashboard');
+    Route::post('/events', [AdminApiController::class, 'storeEvent'])->name('events.store');
+    Route::get('/events/{event}', [AdminApiController::class, 'showEvent'])->name('events.show');
+    Route::put('/events/{event}', [AdminApiController::class, 'updateEvent'])->name('events.update');
+    Route::delete('/events/{event}', [AdminApiController::class, 'destroyEvent'])->name('events.destroy');
+    Route::get('/bookings', [AdminApiController::class, 'bookings'])->name('bookings.index');
+    Route::delete('/bookings/{booking}', [AdminApiController::class, 'destroyBooking'])->name('bookings.destroy');
+    Route::get('/scanner', [AdminApiController::class, 'scanner'])->name('scanner');
+});

@@ -21,7 +21,7 @@ class RegistrationVerificationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'MSEUF Theater Portal - Email Verification Code',
+            subject: "Your Verification Code: {$this->code} - Campus Theater Ticketing",
         );
     }
 
@@ -29,6 +29,7 @@ class RegistrationVerificationMail extends Mailable
     {
         return new Content(
             view: 'emails.registration-verification',
+            text: 'emails.registration-verification-text',
         );
     }
 }
